@@ -25,13 +25,35 @@ export default function CaracterizacionPage() {
     const cargarDatos = async () => {
       try {
         setLoading(true)
+
+        if (!process.env.NEXT_PUBLIC_SUPABASE_URL || !process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+          throw new Error("Las variables de entorno de Supabase no están configuradas")
+        }
+
         const supabase = createClient()
+
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 10000)
+
         const { data, error: err } = await supabase
           .from("caracterizacion_desechos_daule")
           .select("*")
           .order("fecha_registro", { ascending: false })
 
-        if (err) throw err
+        clearTimeout(timeoutId)
+
+        if (err) {
+          console.error("[v0] Error de Supabase:", err.message, err.details)
+          throw new Error(`Error al cargar datos: ${err.message}`)
+        }
+
+        if (!data) {
+          console.warn("[v0] No hay datos disponibles")
+          setRegistros([])
+          setRegistrosFiltrados([])
+          setLoading(false)
+          return
+        }
 
         const registrosConValores = (data || []).map((r) => ({
           ...r,
@@ -69,8 +91,11 @@ export default function CaracterizacionPage() {
         setRegistros(registrosConValores)
         setRegistrosFiltrados(registrosConValores)
       } catch (err) {
-        console.error("[v0] Error cargando datos:", err)
-        setError("No se pudieron cargar los datos. Intenta más tarde.")
+        const errorMessage = err instanceof Error ? err.message : "Error desconocido"
+        console.error("[v0] Error cargando datos:", errorMessage)
+        setError(
+          `No se pudieron cargar los datos: ${errorMessage}. Verifica que Supabase esté configurado correctamente.`,
+        )
       } finally {
         setLoading(false)
       }
@@ -97,10 +122,11 @@ export default function CaracterizacionPage() {
 
           <div className="mb-10 bg-secondary-bg p-8 rounded-lg border border-border">
             {loading ? (
-              /* Reemplazado text-text-secondary por text-secondary-text */
               <p className="text-secondary-text">Cargando datos...</p>
             ) : error ? (
-              <p className="text-destructive font-medium">{error}</p>
+              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
+                <p className="font-medium">{error}</p>
+              </div>
             ) : (
               <CaracterizacionFiltro registros={registros} onFiltroChange={setRegistrosFiltrados} />
             )}

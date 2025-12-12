@@ -42,35 +42,6 @@ const COLORS = [
   "#a855f7", // Púrpura claro
 ]
 
-/* Función para mostrar porcentajes arriba de las barras con cada barra en color diferente */
-const CustomBarLabel = (props: any) => {
-  const { x, y, width, payload } = props
-  const porcentaje = payload?.payload?.porcentaje ?? 0
-  return (
-    <text x={x + width / 2} y={y - 8} fill="#1f2937" textAnchor="middle" fontSize={12} fontWeight="bold">
-      {`${porcentaje.toFixed(1)}%`}
-    </text>
-  )
-}
-
-/* Etiqueta personalizada para gráfico de línea */
-const CustomLineLabel = (props: any) => {
-  const { x, y, payload } = props
-  const porcentaje = payload?.payload?.porcentaje ?? 0
-  return (
-    <text x={x} y={y - 12} fill="#1f2937" textAnchor="middle" fontSize={11} fontWeight="600">
-      {`${porcentaje.toFixed(1)}%`}
-    </text>
-  )
-}
-
-/* Etiqueta personalizada para gráfico circular - porcentajes dentro con tamaño adecuado */
-const CustomPieLabel = (entry: any) => {
-  const porcentaje = entry.porcentaje ?? 0
-  if (porcentaje < 3) return ""
-  return `${porcentaje.toFixed(1)}%`
-}
-
 /* Función para calcular el ancho de etiqueta del eje Y dinámicamente */
 const calculateYAxisWidth = (datos: any[]) => {
   const maxValue = Math.max(...datos.map((d) => d.value))
@@ -144,8 +115,8 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                 <Bar
                   dataKey="value"
                   label={(props: any) => {
-                    const { x, y, width, payload } = props
-                    const porcentaje = payload?.payload?.porcentaje ?? 0
+                    const { x, y, width, index } = props
+                    const porcentaje = datos[index]?.porcentaje ?? 0
                     return (
                       <text
                         x={x + width / 2}
@@ -171,7 +142,6 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
         )}
 
         {tipoGrafico === "torta" && (
-          /* Gráfico circular con tamaño responsivo sin overflow, porcentajes solo si >= 3% */
           <div
             style={{ width: "100%", height: "600px", display: "flex", justifyContent: "center", alignItems: "center" }}
           >
@@ -182,14 +152,16 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   cx="50%"
                   cy="50%"
                   labelLine={false}
-                  label={({ porcentaje }: any) => {
-                    if (porcentaje < 3) return ""
+                  label={(entry: any) => {
+                    const porcentaje = entry.porcentaje ?? 0
+                    if (porcentaje < 2) return ""
                     return `${porcentaje.toFixed(1)}%`
                   }}
-                  outerRadius={140}
-                  innerRadius={60}
+                  outerRadius={160}
+                  innerRadius={80}
                   fill="#8884d8"
                   dataKey="value"
+                  paddingAngle={2}
                 >
                   {datos.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
@@ -204,14 +176,21 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   }}
                   labelStyle={{ color: "#1f2937" }}
                 />
-                <Legend verticalAlign="bottom" height={36} wrapperStyle={{ paddingTop: "20px", fontSize: "12px" }} />
+                <Legend
+                  verticalAlign="bottom"
+                  height={36}
+                  wrapperStyle={{ paddingTop: "20px", fontSize: "12px" }}
+                  formatter={(value, entry: any) => {
+                    const porcentaje = entry.payload?.porcentaje ?? 0
+                    return `${value} (${porcentaje.toFixed(1)}%)`
+                  }}
+                />
               </PieChart>
             </ResponsiveContainer>
           </div>
         )}
 
         {tipoGrafico === "lineal" && (
-          /* Gráfico de línea con altura responsiva y márgenes adecuados */
           <div style={{ width: "100%", height: "500px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={datos} margin={lineChartMargin}>
@@ -239,8 +218,8 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   dataKey="value"
                   stroke="#0ea5e9"
                   dot={(props: any) => {
-                    const { cx, cy, payload, dataIndex } = props
-                    const pointColor = COLORS[dataIndex % COLORS.length]
+                    const { cx, cy, payload, index } = props
+                    const pointColor = COLORS[index % COLORS.length]
                     return (
                       <g key={`dot-${payload.name}`}>
                         <circle cx={cx} cy={cy} r={6} fill={pointColor} stroke="white" strokeWidth={2} />

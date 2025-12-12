@@ -1,10 +1,8 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { createClient } from "@/lib/supabase/server"
+import { ComportamientoContent } from "@/components/comportamiento-content"
 
 export default async function AutosustentabilidadPage() {
-  const supabase = await createClient()
-
   return (
     <div className="flex flex-col min-h-screen bg-background">
       <Header />
@@ -19,9 +17,7 @@ export default async function AutosustentabilidadPage() {
           </p>
         </div>
 
-        <div className="bg-secondary-bg rounded-lg border border-border p-8 text-center">
-          <p className="text-secondary-text">Los datos y gráficos de esta encuesta estarán disponibles pronto.</p>
-        </div>
+        <ComportamientoContent />
       </main>
       <Footer />
     </div>

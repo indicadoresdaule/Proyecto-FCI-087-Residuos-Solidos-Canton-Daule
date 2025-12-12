@@ -33,7 +33,10 @@ export function CaracterizacionFiltro({ registros, onFiltroChange }: Caracteriza
         Filtrar por Ubicación
       </Label>
       <Select value={lugarSeleccionado} onValueChange={setLugarSeleccionado}>
-        <SelectTrigger id="lugar-select" className="w-full md:w-64">
+        <SelectTrigger
+          id="lugar-select"
+          className="w-full md:w-64 bg-white border-2 border-border hover:border-primary transition-colors"
+        >
           <SelectValue placeholder="Selecciona una ubicación" />
         </SelectTrigger>
         <SelectContent>

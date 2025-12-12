@@ -13,27 +13,27 @@ export function CaracterizacionResumen({
   totalDesechos,
   promedioPorEncuesta,
 }: CaracterizacionResumenProps) {
-  /* Removidos emojis/iconos para diseño más profesional */
+  /* Todas las métricas ahora tienen el mismo diseño consistente con gradientes y misma estructura */
   const metricas = [
     {
       label: "Total de Encuestas",
       valor: totalEncuestas.toLocaleString(),
-      color: "from-primary to-primary-light",
+      color: "from-blue-500 to-blue-600",
     },
     {
       label: "Total de Ubicaciones",
       valor: totalUbicaciones.toLocaleString(),
-      color: "from-accent to-accent-light",
+      color: "from-teal-500 to-teal-600",
     },
     {
       label: "Total de Desechos",
       valor: `${totalDesechos.toFixed(2)} kg`,
-      color: "from-secondary-light to-secondary",
+      color: "from-emerald-500 to-emerald-600",
     },
     {
       label: "Promedio por Encuesta",
       valor: `${promedioPorEncuesta.toFixed(2)} kg`,
-      color: "from-tertiary-light to-tertiary",
+      color: "from-violet-500 to-violet-600",
     },
   ]
 
@@ -42,11 +42,11 @@ export function CaracterizacionResumen({
       {metricas.map((metrica) => (
         <Card
           key={metrica.label}
-          className={`p-6 border border-border bg-gradient-to-br ${metrica.color} bg-opacity-5 hover:shadow-lg transition-all`}
+          className={`p-6 border-2 border-border bg-gradient-to-br ${metrica.color} shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300`}
         >
           <div className="flex flex-col">
-            <p className="text-sm font-medium text-secondary-text mb-2">{metrica.label}</p>
-            <p className="text-3xl font-bold text-primary-text">{metrica.valor}</p>
+            <p className="text-sm font-semibold text-white/90 mb-2">{metrica.label}</p>
+            <p className="text-3xl font-bold text-white">{metrica.valor}</p>
           </div>
         </Card>
       ))}

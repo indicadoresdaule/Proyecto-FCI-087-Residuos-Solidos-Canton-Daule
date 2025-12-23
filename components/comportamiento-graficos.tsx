@@ -636,7 +636,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
           </div>
         </div>
 
-        <div className="w-full">
+        <div className="w-full" style={{ minHeight: "500px" }}>
           {tipoGrafico === "barras" && (
             <div style={{ width: "100%", height: "500px" }}>
               <ResponsiveContainer width="100%" height="100%">
@@ -790,7 +790,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
               {tablasSeccion?.map((tabla, idx) => (
                 <div key={idx}>
                   <h4 className="text-lg font-semibold text-foreground mb-4">{tabla.nombreGrupo}</h4>
-                  <div className="overflow-x-auto">
+                  <div className="w-full">
                     <Table>
                       <TableHeader>
                         <TableRow>
@@ -823,17 +823,17 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
           {seccionSeleccionada !== "distribucion-demografica" && tablasLikert && tablasLikert.length > 0 && (
             <div className="space-y-8">
               <h3 className="text-2xl font-bold text-foreground">{seccionActual?.titulo || "Datos de la Sección"}</h3>
-              <div className="overflow-x-auto">
+              <div className="w-full">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead className="font-bold min-w-[400px]">Pregunta</TableHead>
-                      <TableHead className="font-bold text-center">Totalmente Desacuerdo</TableHead>
-                      <TableHead className="font-bold text-center">Desacuerdo</TableHead>
-                      <TableHead className="font-bold text-center">Indiferente</TableHead>
-                      <TableHead className="font-bold text-center">De Acuerdo</TableHead>
-                      <TableHead className="font-bold text-center">Totalmente Acuerdo</TableHead>
-                      <TableHead className="font-bold text-center bg-muted">Promedio</TableHead>
+                      <TableHead className="font-bold w-2/5">Pregunta</TableHead>
+                      <TableHead className="font-bold text-center w-[10%]">Totalmente Desacuerdo</TableHead>
+                      <TableHead className="font-bold text-center w-[10%]">Desacuerdo</TableHead>
+                      <TableHead className="font-bold text-center w-[10%]">Indiferente</TableHead>
+                      <TableHead className="font-bold text-center w-[10%]">De Acuerdo</TableHead>
+                      <TableHead className="font-bold text-center w-[10%]">Totalmente Acuerdo</TableHead>
+                      <TableHead className="font-bold text-center bg-muted w-[10%]">Promedio</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>

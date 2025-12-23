@@ -4,6 +4,7 @@ import { useState } from "react"
 import Link from "next/link"
 import { Menu, X } from "lucide-react"
 import { usePathname } from "next/navigation"
+import Image from "next/image"
 
 const navItems = [
   { href: "/", label: "Inicio" },
@@ -21,9 +22,19 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <nav className="container-safe h-16 flex items-center justify-between">
-        <Link href="/" className="flex flex-col gap-0.5 group">
-          <span className="text-sm font-bold text-primary tracking-tight">DAULE</span>
-          <span className="text-xs text-secondary-text font-medium">Residuos Sólidos</span>
+        <Link href="/" className="flex items-center gap-3 group">
+          <div className="relative w-10 h-10 rounded-full overflow-hidden bg-white">
+            <Image
+              src="/images/ingenieria-20-282-29.jpeg"
+              alt="Logo Ingeniería Industrial UG"
+              fill
+              className="object-contain p-0.5"
+            />
+          </div>
+          <div className="flex flex-col gap-0.5">
+            <span className="text-sm font-bold text-primary tracking-tight">DAULE</span>
+            <span className="text-xs text-secondary-text font-medium">Residuos Sólidos</span>
+          </div>
         </Link>
 
         {/* Navegación Desktop */}

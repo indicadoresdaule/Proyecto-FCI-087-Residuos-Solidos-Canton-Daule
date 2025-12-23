@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Label } from "@/components/ui/label"
+import { Card } from "@/components/ui/card"
 import type { CaracterizacionRecord } from "@/lib/utils/caracterizacion-data"
 
 interface CaracterizacionFiltroProps {
@@ -28,26 +29,42 @@ export function CaracterizacionFiltro({ registros, onFiltroChange }: Caracteriza
   }, [lugarSeleccionado, registros, onFiltroChange])
 
   return (
-    <div className="flex flex-col gap-2">
-      <Label htmlFor="lugar-select" className="text-primary-text font-semibold">
-        Filtrar por Ubicación
-      </Label>
-      <Select value={lugarSeleccionado} onValueChange={setLugarSeleccionado}>
-        <SelectTrigger
-          id="lugar-select"
-          className="w-full md:w-64 bg-white border-2 border-border hover:border-primary transition-colors"
-        >
-          <SelectValue placeholder="Selecciona una ubicación" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="todos">Todas las ubicaciones ({registros.length})</SelectItem>
-          {lugares.map((lugar) => (
-            <SelectItem key={lugar} value={lugar}>
-              {lugar}
-            </SelectItem>
-          ))}
-        </SelectContent>
-      </Select>
-    </div>
+    <Card className="p-6 border border-border bg-white">
+      <div className="space-y-4">
+        <div>
+          <h3 className="text-xl font-bold text-foreground mb-2">Filtros de Visualización</h3>
+          <p className="text-sm text-secondary-text">Selecciona una ubicación para filtrar los datos</p>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="lugar-select" className="text-sm font-semibold text-foreground">
+            Ubicación
+          </Label>
+          <Select value={lugarSeleccionado} onValueChange={setLugarSeleccionado}>
+            <SelectTrigger
+              id="lugar-select"
+              className="w-full bg-white border-2 border-border hover:border-primary transition-colors"
+            >
+              <SelectValue placeholder="Selecciona una ubicación" />
+            </SelectTrigger>
+            <SelectContent className="bg-white">
+              <SelectItem value="todos">
+                <span className="font-medium">Todas las ubicaciones</span>
+                <span className="text-secondary-text ml-2">({registros.length} registros)</span>
+              </SelectItem>
+              {lugares.map((lugar) => {
+                const count = registros.filter((r) => r.lugar === lugar).length
+                return (
+                  <SelectItem key={lugar} value={lugar}>
+                    <span className="font-medium">{lugar}</span>
+                    <span className="text-secondary-text ml-2">({count})</span>
+                  </SelectItem>
+                )
+              })}
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+    </Card>
   )
 }

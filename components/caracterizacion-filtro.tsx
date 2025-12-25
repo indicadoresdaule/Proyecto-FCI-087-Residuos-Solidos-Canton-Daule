@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Label } from "@/components/ui/label"
+import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
+import { X } from "lucide-react"
 import type { CaracterizacionRecord } from "@/lib/utils/caracterizacion-data"
 
 interface CaracterizacionFiltroProps {
@@ -28,42 +29,47 @@ export function CaracterizacionFiltro({ registros, onFiltroChange }: Caracteriza
     }
   }, [lugarSeleccionado, registros, onFiltroChange])
 
+  const limpiarFiltros = () => {
+    setLugarSeleccionado("todos")
+  }
+
+  const hayFiltrosActivos = lugarSeleccionado !== "todos"
+
   return (
     <Card className="p-6 border border-border bg-white">
-      <div className="space-y-4">
-        <div>
-          <h3 className="text-xl font-bold text-foreground mb-2">Filtros de Visualización</h3>
-          <p className="text-sm text-secondary-text">Selecciona una ubicación para filtrar los datos</p>
-        </div>
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="text-xl font-bold text-foreground">Filtros</h3>
+        {hayFiltrosActivos && (
+          <Button
+            onClick={limpiarFiltros}
+            variant="ghost"
+            size="sm"
+            className="text-destructive hover:text-destructive"
+          >
+            <X className="h-4 w-4 mr-2" />
+            Limpiar Filtros
+          </Button>
+        )}
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="lugar-select" className="text-sm font-semibold text-foreground">
-            Ubicación
-          </Label>
-          <Select value={lugarSeleccionado} onValueChange={setLugarSeleccionado}>
-            <SelectTrigger
-              id="lugar-select"
-              className="w-full bg-white border-2 border-border hover:border-primary transition-colors"
-            >
-              <SelectValue placeholder="Selecciona una ubicación" />
-            </SelectTrigger>
-            <SelectContent className="bg-white">
-              <SelectItem value="todos">
-                <span className="font-medium">Todas las ubicaciones</span>
-                <span className="text-secondary-text ml-2">({registros.length} registros)</span>
-              </SelectItem>
-              {lugares.map((lugar) => {
-                const count = registros.filter((r) => r.lugar === lugar).length
-                return (
-                  <SelectItem key={lugar} value={lugar}>
-                    <span className="font-medium">{lugar}</span>
-                    <span className="text-secondary-text ml-2">({count})</span>
-                  </SelectItem>
-                )
-              })}
-            </SelectContent>
-          </Select>
-        </div>
+      <div className="space-y-2">
+        <label className="text-sm font-medium text-foreground">Ubicación</label>
+        <Select value={lugarSeleccionado} onValueChange={setLugarSeleccionado}>
+          <SelectTrigger className="bg-white border-border">
+            <SelectValue placeholder="Seleccionar ubicación" />
+          </SelectTrigger>
+          <SelectContent className="bg-white">
+            <SelectItem value="todos">Todas las ubicaciones</SelectItem>
+            {lugares.map((lugar) => {
+              const count = registros.filter((r) => r.lugar === lugar).length
+              return (
+                <SelectItem key={lugar} value={lugar}>
+                  {lugar} ({count} registros)
+                </SelectItem>
+              )
+            })}
+          </SelectContent>
+        </Select>
       </div>
     </Card>
   )

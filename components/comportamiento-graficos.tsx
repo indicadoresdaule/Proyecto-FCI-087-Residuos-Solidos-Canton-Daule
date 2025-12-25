@@ -20,6 +20,7 @@ import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface GraficosProps {
   datos: any[]
@@ -563,372 +564,417 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
 
   return (
     <div className="space-y-8">
-      <Card className="p-6 border border-border">
-        <div className="mb-8 space-y-6">
-          <h3 className="text-2xl font-bold text-foreground">Análisis de Comportamiento Proambiental</h3>
+      <Tabs
+        value={seccionSeleccionada}
+        onValueChange={(value) => {
+          setSeccionSeleccionada(value)
+          const primeraSeccion = SECCIONES[value as keyof typeof SECCIONES]
+          const primerGrupo = Object.keys(primeraSeccion.grupos)[0]
+          setGrupoSeleccionado(primerGrupo)
+        }}
+        className="w-full"
+      >
+        <TabsList className="w-full flex flex-wrap h-auto gap-2 bg-muted/50 p-2">
+          <TabsTrigger
+            value="distribucion-demografica"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
+          >
+            Distribución Demográfica
+          </TabsTrigger>
+          <TabsTrigger
+            value="determinantes-socioculturales"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
+          >
+            Determinantes Socioculturales
+          </TabsTrigger>
+          <TabsTrigger
+            value="determinantes-afectivos"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
+          >
+            Determinantes Afectivos
+          </TabsTrigger>
+          <TabsTrigger
+            value="determinantes-cognitivos"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
+          >
+            Determinantes Cognitivos
+          </TabsTrigger>
+          <TabsTrigger
+            value="sustentabilidad-ambiental"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
+          >
+            Sustentabilidad Ambiental
+          </TabsTrigger>
+          <TabsTrigger
+            value="sustentabilidad-economica"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
+          >
+            Sustentabilidad Económica
+          </TabsTrigger>
+          <TabsTrigger
+            value="desarrollo-comunitario"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
+          >
+            Desarrollo Comunitario
+          </TabsTrigger>
+        </TabsList>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Seleccionar Sección</label>
-            <Select
-              value={seccionSeleccionada}
-              onValueChange={(value) => {
-                setSeccionSeleccionada(value)
-                const primeraSeccion = SECCIONES[value as keyof typeof SECCIONES]
-                const primerGrupo = Object.keys(primeraSeccion.grupos)[0]
-                setGrupoSeleccionado(primerGrupo)
-              }}
-            >
-              <SelectTrigger className="bg-white border-border max-w-md">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {Object.entries(SECCIONES).map(([key, seccion]) => (
-                  <SelectItem key={key} value={key}>
-                    {seccion.titulo}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+        {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
+          <TabsContent key={seccionKey} value={seccionKey} className="mt-6 space-y-8">
+            <Card className="p-6 border border-border">
+              <div className="mb-8 space-y-6">
+                <h3 className="text-2xl font-bold text-foreground">{seccion.titulo}</h3>
 
-          <div className="space-y-2">
-            <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
-            <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
-              <SelectTrigger className="bg-white border-border">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent className="bg-white">
-                {seccionActual &&
-                  Object.entries(seccionActual.grupos).map(([key, grupo]) => (
-                    <SelectItem key={key} value={key}>
-                      {grupo.nombre}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex gap-3 flex-wrap">
-            <Button
-              onClick={() => setTipoGrafico("barras")}
-              variant={tipoGrafico === "barras" ? "default" : "outline"}
-              size="sm"
-              className={tipoGrafico === "barras" ? "bg-primary text-white hover:bg-primary" : ""}
-            >
-              Gráfico de Barras
-            </Button>
-            <Button
-              onClick={() => setTipoGrafico("torta")}
-              variant={tipoGrafico === "torta" ? "default" : "outline"}
-              size="sm"
-              className={tipoGrafico === "torta" ? "bg-primary text-white hover:bg-primary" : ""}
-            >
-              Gráfico Circular
-            </Button>
-            <Button
-              onClick={() => setTipoGrafico("lineal")}
-              variant={tipoGrafico === "lineal" ? "default" : "outline"}
-              size="sm"
-              className={tipoGrafico === "lineal" ? "bg-primary text-white hover:bg-primary" : ""}
-            >
-              Gráfico de Línea
-            </Button>
-          </div>
-        </div>
-
-        <div className="w-full" style={{ minHeight: "500px" }}>
-          {tipoGrafico === "barras" && (
-            <div style={{ width: "100%", height: "500px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={datosGrafico} margin={{ top: 40, right: 30, left: 60, bottom: 100 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="name"
-                    angle={-45}
-                    textAnchor="end"
-                    height={120}
-                    fontSize={12}
-                    tick={{ fill: "#4b5563" }}
-                  />
-                  <YAxis fontSize={12} tick={{ fill: "#4b5563" }} />
-                  <Tooltip
-                    formatter={(value) => `${value} respuestas`}
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <Bar
-                    dataKey="value"
-                    label={(props: any) => {
-                      const { x, y, width, index } = props
-                      const porcentaje = datosGrafico[index]?.porcentaje ?? 0
-                      return (
-                        <text
-                          x={x + width / 2}
-                          y={y - 8}
-                          fill="#1f2937"
-                          textAnchor="middle"
-                          fontSize={12}
-                          fontWeight="bold"
-                        >
-                          {`${porcentaje.toFixed(1)}%`}
-                        </text>
-                      )
-                    }}
-                    radius={[6, 6, 0, 0]}
-                  >
-                    {datosGrafico.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {tipoGrafico === "torta" && (
-            <div style={{ width: "100%", height: "600px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={datosGrafico}
-                    cx="50%"
-                    cy="50%"
-                    labelLine={false}
-                    label={(entry: any) => {
-                      const porcentaje = entry.porcentaje ?? 0
-                      if (porcentaje < 2) return ""
-                      return `${porcentaje.toFixed(1)}%`
-                    }}
-                    outerRadius={160}
-                    innerRadius={80}
-                    fill="#8884d8"
-                    dataKey="value"
-                    paddingAngle={2}
-                  >
-                    {datosGrafico.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip
-                    formatter={(value) => `${value} respuestas`}
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <Legend
-                    verticalAlign="bottom"
-                    height={36}
-                    wrapperStyle={{ paddingTop: "20px", fontSize: "12px" }}
-                    formatter={(value, entry: any) => {
-                      const porcentaje = entry.payload?.porcentaje ?? 0
-                      return `${value} (${porcentaje.toFixed(1)}%)`
-                    }}
-                  />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-
-          {tipoGrafico === "lineal" && (
-            <div style={{ width: "100%", height: "500px" }}>
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={datosGrafico} margin={{ top: 40, right: 30, left: 60, bottom: 100 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis
-                    dataKey="name"
-                    angle={-45}
-                    textAnchor="end"
-                    height={120}
-                    fontSize={12}
-                    tick={{ fill: "#4b5563" }}
-                  />
-                  <YAxis fontSize={12} tick={{ fill: "#4b5563" }} />
-                  <Tooltip
-                    formatter={(value) => `${value} respuestas`}
-                    contentStyle={{
-                      backgroundColor: "#fff",
-                      border: "1px solid #e5e7eb",
-                      borderRadius: "6px",
-                    }}
-                  />
-                  <Line
-                    type="monotone"
-                    dataKey="value"
-                    stroke="#0ea5e9"
-                    dot={(props: any) => {
-                      const { cx, cy, payload, index } = props
-                      const pointColor = COLORS[index % COLORS.length]
-                      return (
-                        <g key={`dot-${payload.name}`}>
-                          <circle cx={cx} cy={cy} r={6} fill={pointColor} stroke="white" strokeWidth={2} />
-                          <text x={cx} y={cy - 28} textAnchor="middle" fontSize={11} fontWeight="600" fill="#1f2937">
-                            {`${payload.porcentaje.toFixed(1)}%`}
-                          </text>
-                        </g>
-                      )
-                    }}
-                    strokeWidth={3}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          )}
-        </div>
-      </Card>
-
-      <Card className="p-6 border border-border">
-        <h3 className="text-2xl font-bold text-foreground mb-6">{seccionActual?.titulo} - Datos Detallados</h3>
-        <div className="space-y-8">
-          {seccionSeleccionada === "distribucion-demografica" && tablasSeccion && tablasSeccion.length > 0 && (
-            <div className="space-y-8">
-              <h3 className="text-2xl font-bold text-foreground">Datos Demográficos</h3>
-              {tablasSeccion?.map((tabla, idx) => (
-                <div key={idx}>
-                  <h4 className="text-lg font-semibold text-foreground mb-4">{tabla.nombreGrupo}</h4>
-                  <div className="w-full">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="font-bold">Categoría</TableHead>
-                          <TableHead className="font-bold text-right">Cantidad</TableHead>
-                          <TableHead className="font-bold text-right">% del Total</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {tabla.datos.map((fila, idx2) => (
-                          <TableRow key={idx2}>
-                            <TableCell className="font-medium">{fila.name}</TableCell>
-                            <TableCell className="text-right">{fila.value}</TableCell>
-                            <TableCell className="text-right">{fila.porcentaje.toFixed(2)}%</TableCell>
-                          </TableRow>
-                        ))}
-                        <TableRow className="bg-muted/50 font-bold">
-                          <TableCell>Total</TableCell>
-                          <TableCell className="text-right">{tabla.total}</TableCell>
-                          <TableCell className="text-right">100%</TableCell>
-                        </TableRow>
-                      </TableBody>
-                    </Table>
-                  </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
+                  <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
+                    <SelectTrigger className="bg-white border-border">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent className="bg-white">
+                      {Object.entries(seccion.grupos).map(([key, grupo]) => (
+                        <SelectItem key={key} value={key}>
+                          {grupo.nombre}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-              ))}
-            </div>
-          )}
 
-          {seccionSeleccionada !== "distribucion-demografica" && tablasLikert && tablasLikert.length > 0 && (
-            <div className="space-y-8">
-              <h3 className="text-2xl font-bold text-foreground">{seccionActual?.titulo || "Datos de la Sección"}</h3>
-              <div className="w-full">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead className="font-bold w-2/5">Pregunta</TableHead>
-                      <TableHead className="font-bold text-center w-[10%]">Totalmente Desacuerdo</TableHead>
-                      <TableHead className="font-bold text-center w-[10%]">Desacuerdo</TableHead>
-                      <TableHead className="font-bold text-center w-[10%]">Indiferente</TableHead>
-                      <TableHead className="font-bold text-center w-[10%]">De Acuerdo</TableHead>
-                      <TableHead className="font-bold text-center w-[10%]">Totalmente Acuerdo</TableHead>
-                      <TableHead className="font-bold text-center bg-muted w-[10%]">Promedio</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {tablasLikert.map((tabla, idx) => (
-                      <TableRow key={idx}>
-                        <TableCell className="font-medium">{tabla.pregunta}</TableCell>
-                        <TableCell className="text-center">
-                          {tabla.totalEncuestas > 0
-                            ? ((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                            : "0.0%"}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {tabla.totalEncuestas > 0
-                            ? ((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                            : "0.0%"}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {tabla.totalEncuestas > 0
-                            ? ((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                            : "0.0%"}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {tabla.totalEncuestas > 0
-                            ? ((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                            : "0.0%"}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          {tabla.totalEncuestas > 0
-                            ? ((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                            : "0.0%"}
-                        </TableCell>
-                        <TableCell className="text-center bg-muted font-bold">{tabla.promedio.toFixed(1)}%</TableCell>
-                      </TableRow>
-                    ))}
-                    <TableRow className="bg-muted/70">
-                      <TableCell className="font-bold">Promedio General</TableCell>
-                      <TableCell className="text-center font-bold">
-                        {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                          ? (
-                              (tablasLikert.reduce((sum, t) => sum + t.conteos["Totalmente desacuerdo"], 0) /
-                                (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                              100
-                            ).toFixed(1) + "%"
-                          : "0.0%"}
-                      </TableCell>
-                      <TableCell className="text-center font-bold">
-                        {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                          ? (
-                              (tablasLikert.reduce((sum, t) => sum + t.conteos["Desacuerdo"], 0) /
-                                (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                              100
-                            ).toFixed(1) + "%"
-                          : "0.0%"}
-                      </TableCell>
-                      <TableCell className="text-center font-bold">
-                        {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                          ? (
-                              (tablasLikert.reduce((sum, t) => sum + t.conteos["Indiferente"], 0) /
-                                (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                              100
-                            ).toFixed(1) + "%"
-                          : "0.0%"}
-                      </TableCell>
-                      <TableCell className="text-center font-bold">
-                        {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                          ? (
-                              (tablasLikert.reduce((sum, t) => sum + t.conteos["De acuerdo"], 0) /
-                                (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                              100
-                            ).toFixed(1) + "%"
-                          : "0.0%"}
-                      </TableCell>
-                      <TableCell className="text-center font-bold">
-                        {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                          ? (
-                              (tablasLikert.reduce((sum, t) => sum + t.conteos["Totalmente de acuerdo"], 0) /
-                                (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                              100
-                            ).toFixed(1) + "%"
-                          : "0.0%"}
-                      </TableCell>
-                      <TableCell className="text-center bg-muted font-bold text-lg">
-                        {tablasLikert.length > 0
-                          ? (tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length).toFixed(1) +
-                            "%"
-                          : "0.0%"}
-                      </TableCell>
-                    </TableRow>
-                  </TableBody>
-                </Table>
+                <div className="flex gap-3 flex-wrap">
+                  <Button
+                    onClick={() => setTipoGrafico("barras")}
+                    variant={tipoGrafico === "barras" ? "default" : "outline"}
+                    size="sm"
+                    className={tipoGrafico === "barras" ? "bg-primary text-white hover:bg-primary" : ""}
+                  >
+                    Gráfico de Barras
+                  </Button>
+                  <Button
+                    onClick={() => setTipoGrafico("torta")}
+                    variant={tipoGrafico === "torta" ? "default" : "outline"}
+                    size="sm"
+                    className={tipoGrafico === "torta" ? "bg-primary text-white hover:bg-primary" : ""}
+                  >
+                    Gráfico Circular
+                  </Button>
+                  <Button
+                    onClick={() => setTipoGrafico("lineal")}
+                    variant={tipoGrafico === "lineal" ? "default" : "outline"}
+                    size="sm"
+                    className={tipoGrafico === "lineal" ? "bg-primary text-white hover:bg-primary" : ""}
+                  >
+                    Gráfico de Línea
+                  </Button>
+                </div>
               </div>
-            </div>
-          )}
-        </div>
-      </Card>
+
+              <div className="w-full" style={{ minHeight: "500px" }}>
+                {tipoGrafico === "barras" && (
+                  <div style={{ width: "100%", height: "500px" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={datosGrafico} margin={{ top: 40, right: 30, left: 60, bottom: 100 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis
+                          dataKey="name"
+                          angle={-45}
+                          textAnchor="end"
+                          height={120}
+                          fontSize={12}
+                          tick={{ fill: "#4b5563" }}
+                        />
+                        <YAxis fontSize={12} tick={{ fill: "#4b5563" }} />
+                        <Tooltip
+                          formatter={(value) => `${value} respuestas`}
+                          contentStyle={{
+                            backgroundColor: "#fff",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: "6px",
+                          }}
+                        />
+                        <Bar
+                          dataKey="value"
+                          label={(props: any) => {
+                            const { x, y, width, index } = props
+                            const porcentaje = datosGrafico[index]?.porcentaje ?? 0
+                            return (
+                              <text
+                                x={x + width / 2}
+                                y={y - 8}
+                                fill="#1f2937"
+                                textAnchor="middle"
+                                fontSize={12}
+                                fontWeight="bold"
+                              >
+                                {`${porcentaje.toFixed(1)}%`}
+                              </text>
+                            )
+                          }}
+                          radius={[6, 6, 0, 0]}
+                        >
+                          {datosGrafico.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Bar>
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                {tipoGrafico === "torta" && (
+                  <div style={{ width: "100%", height: "600px" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={datosGrafico}
+                          cx="50%"
+                          cy="50%"
+                          labelLine={false}
+                          label={(entry: any) => {
+                            const porcentaje = entry.porcentaje ?? 0
+                            if (porcentaje < 2) return ""
+                            return `${porcentaje.toFixed(1)}%`
+                          }}
+                          outerRadius={160}
+                          innerRadius={80}
+                          fill="#8884d8"
+                          dataKey="value"
+                          paddingAngle={2}
+                        >
+                          {datosGrafico.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          formatter={(value) => `${value} respuestas`}
+                          contentStyle={{
+                            backgroundColor: "#fff",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: "6px",
+                          }}
+                        />
+                        <Legend
+                          verticalAlign="bottom"
+                          height={36}
+                          wrapperStyle={{ paddingTop: "20px", fontSize: "12px" }}
+                          formatter={(value, entry: any) => {
+                            const porcentaje = entry.payload?.porcentaje ?? 0
+                            return `${value} (${porcentaje.toFixed(1)}%)`
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+
+                {tipoGrafico === "lineal" && (
+                  <div style={{ width: "100%", height: "500px" }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <LineChart data={datosGrafico} margin={{ top: 40, right: 30, left: 60, bottom: 100 }}>
+                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                        <XAxis
+                          dataKey="name"
+                          angle={-45}
+                          textAnchor="end"
+                          height={120}
+                          fontSize={12}
+                          tick={{ fill: "#4b5563" }}
+                        />
+                        <YAxis fontSize={12} tick={{ fill: "#4b5563" }} />
+                        <Tooltip
+                          formatter={(value) => `${value} respuestas`}
+                          contentStyle={{
+                            backgroundColor: "#fff",
+                            border: "1px solid #e5e7eb",
+                            borderRadius: "6px",
+                          }}
+                        />
+                        <Line
+                          type="monotone"
+                          dataKey="value"
+                          stroke="#0ea5e9"
+                          dot={(props: any) => {
+                            const { cx, cy, payload, index } = props
+                            const pointColor = COLORS[index % COLORS.length]
+                            return (
+                              <g key={`dot-${payload.name}`}>
+                                <circle cx={cx} cy={cy} r={6} fill={pointColor} stroke="white" strokeWidth={2} />
+                                <text
+                                  x={cx}
+                                  y={cy - 28}
+                                  textAnchor="middle"
+                                  fontSize={11}
+                                  fontWeight="600"
+                                  fill="#1f2937"
+                                >
+                                  {`${payload.porcentaje.toFixed(1)}%`}
+                                </text>
+                              </g>
+                            )
+                          }}
+                          strokeWidth={3}
+                        />
+                      </LineChart>
+                    </ResponsiveContainer>
+                  </div>
+                )}
+              </div>
+            </Card>
+
+            <Card className="p-6 border border-border">
+              <h3 className="text-2xl font-bold text-foreground mb-6">{seccion.titulo} - Datos Detallados</h3>
+              <div className="space-y-8">
+                {seccionKey === "distribucion-demografica" && tablasSeccion && tablasSeccion.length > 0 && (
+                  <div className="space-y-8">
+                    {tablasSeccion?.map((tabla, idx) => (
+                      <div key={idx}>
+                        <h4 className="text-lg font-semibold text-foreground mb-4">{tabla.nombreGrupo}</h4>
+                        <div className="w-full overflow-x-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="font-bold">Categoría</TableHead>
+                                <TableHead className="font-bold text-right">Cantidad</TableHead>
+                                <TableHead className="font-bold text-right">% del Total</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {tabla.datos.map((fila, idx2) => (
+                                <TableRow key={idx2}>
+                                  <TableCell className="font-medium">{fila.name}</TableCell>
+                                  <TableCell className="text-right">{fila.value}</TableCell>
+                                  <TableCell className="text-right">{fila.porcentaje.toFixed(2)}%</TableCell>
+                                </TableRow>
+                              ))}
+                              <TableRow className="bg-muted/50 font-bold">
+                                <TableCell>Total</TableCell>
+                                <TableCell className="text-right">{tabla.total}</TableCell>
+                                <TableCell className="text-right">100%</TableCell>
+                              </TableRow>
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {seccionKey !== "distribucion-demografica" && tablasLikert && tablasLikert.length > 0 && (
+                  <div className="space-y-8">
+                    <div className="w-full overflow-x-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow>
+                            <TableHead className="font-bold w-2/5">Pregunta</TableHead>
+                            <TableHead className="font-bold text-center w-[10%]">Totalmente Desacuerdo</TableHead>
+                            <TableHead className="font-bold text-center w-[10%]">Desacuerdo</TableHead>
+                            <TableHead className="font-bold text-center w-[10%]">Indiferente</TableHead>
+                            <TableHead className="font-bold text-center w-[10%]">De Acuerdo</TableHead>
+                            <TableHead className="font-bold text-center w-[10%]">Totalmente Acuerdo</TableHead>
+                            <TableHead className="font-bold text-center bg-muted w-[10%]">Promedio</TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {tablasLikert.map((tabla, idx) => (
+                            <TableRow key={idx}>
+                              <TableCell className="font-medium">{tabla.pregunta}</TableCell>
+                              <TableCell className="text-center">
+                                {tabla.totalEncuestas > 0
+                                  ? ((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) +
+                                    "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {tabla.totalEncuestas > 0
+                                  ? ((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {tabla.totalEncuestas > 0
+                                  ? ((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {tabla.totalEncuestas > 0
+                                  ? ((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center">
+                                {tabla.totalEncuestas > 0
+                                  ? ((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) +
+                                    "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center bg-muted font-bold">
+                                {tabla.promedio.toFixed(1)}%
+                              </TableCell>
+                            </TableRow>
+                          ))}
+                          <TableRow className="bg-muted/70">
+                            <TableCell className="font-bold">Promedio General</TableCell>
+                            <TableCell className="text-center font-bold">
+                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                ? (
+                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Totalmente desacuerdo"], 0) /
+                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
+                                    100
+                                  ).toFixed(1) + "%"
+                                : "0.0%"}
+                            </TableCell>
+                            <TableCell className="text-center font-bold">
+                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                ? (
+                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Desacuerdo"], 0) /
+                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
+                                    100
+                                  ).toFixed(1) + "%"
+                                : "0.0%"}
+                            </TableCell>
+                            <TableCell className="text-center font-bold">
+                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                ? (
+                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Indiferente"], 0) /
+                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
+                                    100
+                                  ).toFixed(1) + "%"
+                                : "0.0%"}
+                            </TableCell>
+                            <TableCell className="text-center font-bold">
+                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                ? (
+                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["De acuerdo"], 0) /
+                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
+                                    100
+                                  ).toFixed(1) + "%"
+                                : "0.0%"}
+                            </TableCell>
+                            <TableCell className="text-center font-bold">
+                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                ? (
+                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Totalmente de acuerdo"], 0) /
+                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
+                                    100
+                                  ).toFixed(1) + "%"
+                                : "0.0%"}
+                            </TableCell>
+                            <TableCell className="text-center bg-muted font-bold text-lg">
+                              {tablasLikert.length > 0
+                                ? (tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length).toFixed(
+                                    1,
+                                  ) + "%"
+                                : "0.0%"}
+                            </TableCell>
+                          </TableRow>
+                        </TableBody>
+                      </Table>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </TabsContent>
+        ))}
+      </Tabs>
     </div>
   )
 }

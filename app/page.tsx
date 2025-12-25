@@ -27,6 +27,28 @@ export default function Home() {
               </p>
             </div>
           </div>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "GovernmentOrganization",
+                name: "GAD Municipal del Cantón Daule",
+                description: "Gestión de Residuos Sólidos del Cantón Daule",
+                url: "https://residuosdaule.vercel.app",
+                logo: "https://residuosdaule.vercel.app/images/ingenieria-20-282-29.jpeg",
+                areaServed: {
+                  "@type": "City",
+                  name: "Daule",
+                  containedIn: {
+                    "@type": "Country",
+                    name: "Ecuador",
+                  },
+                },
+                serviceType: "Gestión Ambiental y de Residuos Sólidos",
+              }),
+            }}
+          />
         </section>
 
         {/* Sección de Tarjetas Mejorada */}

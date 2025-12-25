@@ -27,21 +27,29 @@ interface GraficosProps {
 }
 
 const COLORS = [
-  "#10b981",
-  "#059669",
-  "#14b8a6",
-  "#0d9488",
-  "#06b6d4",
-  "#0891b2",
-  "#0ea5e9",
-  "#0284c7",
-  "#3b82f6",
-  "#2563eb",
-  "#6366f1",
-  "#4f46e5",
-  "#8b5cf6",
-  "#7c3aed",
-  "#a855f7",
+  { bg: "rgba(255, 99, 132, 0.6)", border: "rgb(255, 99, 132)" },
+  { bg: "rgba(54, 162, 235, 0.6)", border: "rgb(54, 162, 235)" },
+  { bg: "rgba(255, 206, 86, 0.6)", border: "rgb(255, 206, 86)" },
+  { bg: "rgba(75, 192, 192, 0.6)", border: "rgb(75, 192, 192)" },
+  { bg: "rgba(153, 102, 255, 0.6)", border: "rgb(153, 102, 255)" },
+  { bg: "rgba(255, 159, 64, 0.6)", border: "rgb(255, 159, 64)" },
+  { bg: "rgba(16, 185, 129, 0.6)", border: "rgb(16, 185, 129)" },
+  { bg: "rgba(244, 63, 94, 0.6)", border: "rgb(244, 63, 94)" },
+  { bg: "rgba(99, 102, 241, 0.6)", border: "rgb(99, 102, 241)" },
+  { bg: "rgba(251, 191, 36, 0.6)", border: "rgb(251, 191, 36)" },
+]
+
+const SOLID_COLORS = [
+  "rgb(255, 99, 132)",
+  "rgb(54, 162, 235)",
+  "rgb(255, 206, 86)",
+  "rgb(75, 192, 192)",
+  "rgb(153, 102, 255)",
+  "rgb(255, 159, 64)",
+  "rgb(16, 185, 129)",
+  "rgb(244, 63, 94)",
+  "rgb(99, 102, 241)",
+  "rgb(251, 191, 36)",
 ]
 
 const SECCIONES = {
@@ -713,7 +721,12 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
                           radius={[6, 6, 0, 0]}
                         >
                           {datosGrafico.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={COLORS[index % COLORS.length].bg}
+                              stroke={COLORS[index % COLORS.length].border}
+                              strokeWidth={2}
+                            />
                           ))}
                         </Bar>
                       </BarChart>
@@ -740,9 +753,20 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
                           fill="#8884d8"
                           dataKey="value"
                           paddingAngle={2}
+                          activeIndex={undefined}
+                          activeShape={{
+                            outerRadius: 170,
+                            stroke: "#fff",
+                            strokeWidth: 3,
+                          }}
                         >
                           {datosGrafico.map((entry, index) => (
-                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            <Cell
+                              key={`cell-${index}`}
+                              fill={SOLID_COLORS[index % SOLID_COLORS.length]}
+                              stroke="#fff"
+                              strokeWidth={2}
+                            />
                           ))}
                         </Pie>
                         <Tooltip
@@ -798,7 +822,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
                             const pointColor = COLORS[index % COLORS.length]
                             return (
                               <g key={`dot-${payload.name}`}>
-                                <circle cx={cx} cy={cy} r={6} fill={pointColor} stroke="white" strokeWidth={2} />
+                                <circle cx={cx} cy={cy} r={6} fill={pointColor.bg} stroke="white" strokeWidth={2} />
                                 <text
                                   x={cx}
                                   y={cy - 28}

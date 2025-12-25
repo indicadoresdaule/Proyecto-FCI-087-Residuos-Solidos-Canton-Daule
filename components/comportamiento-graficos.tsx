@@ -563,7 +563,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
   const tablasLikert = generarTablaLikertPorSeccion(datos, seccionSeleccionada)
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-12">
       <Tabs
         value={seccionSeleccionada}
         onValueChange={(value) => {
@@ -574,7 +574,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
         }}
         className="w-full"
       >
-        <TabsList className="w-full flex flex-wrap h-auto gap-2 bg-muted/50 p-2">
+        <TabsList className="w-full flex flex-wrap h-auto gap-3 bg-muted/50 p-4">
           <TabsTrigger
             value="distribucion-demografica"
             className="data-[state=active]:bg-primary data-[state=active]:text-white flex-1 min-w-[150px]"
@@ -620,12 +620,12 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
         </TabsList>
 
         {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
-          <TabsContent key={seccionKey} value={seccionKey} className="mt-6 space-y-8">
-            <Card className="p-6 border border-border">
-              <div className="mb-8 space-y-6">
+          <TabsContent key={seccionKey} value={seccionKey} className="mt-8 space-y-12">
+            <Card className="p-8 border border-border">
+              <div className="mb-10 space-y-8">
                 <h3 className="text-2xl font-bold text-foreground">{seccion.titulo}</h3>
 
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
                     <SelectTrigger className="bg-white border-border">
@@ -641,7 +641,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
                   </Select>
                 </div>
 
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-4 flex-wrap">
                   <Button
                     onClick={() => setTipoGrafico("barras")}
                     variant={tipoGrafico === "barras" ? "default" : "outline"}
@@ -669,7 +669,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
                 </div>
               </div>
 
-              <div className="w-full" style={{ minHeight: "500px" }}>
+              <div className="space-y-10">
                 {tipoGrafico === "barras" && (
                   <div style={{ width: "100%", height: "500px" }}>
                     <ResponsiveContainer width="100%" height="100%">
@@ -821,11 +821,11 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
               </div>
             </Card>
 
-            <Card className="p-6 border border-border">
-              <h3 className="text-2xl font-bold text-foreground mb-6">{seccion.titulo} - Datos Detallados</h3>
-              <div className="space-y-8">
+            <Card className="p-8 border border-border">
+              <h3 className="text-2xl font-bold text-foreground mb-8">{seccion.titulo} - Datos Detallados</h3>
+              <div className="space-y-12">
                 {seccionKey === "distribucion-demografica" && tablasSeccion && tablasSeccion.length > 0 && (
-                  <div className="space-y-8">
+                  <div className="space-y-12">
                     {tablasSeccion?.map((tabla, idx) => (
                       <div key={idx}>
                         <h4 className="text-lg font-semibold text-foreground mb-4">{tabla.nombreGrupo}</h4>
@@ -860,7 +860,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
                 )}
 
                 {seccionKey !== "distribucion-demografica" && tablasLikert && tablasLikert.length > 0 && (
-                  <div className="space-y-8">
+                  <div className="space-y-12">
                     <div className="w-full overflow-x-auto">
                       <Table>
                         <TableHeader>

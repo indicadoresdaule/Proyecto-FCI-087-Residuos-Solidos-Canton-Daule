@@ -1,6 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { CardEncuesta } from "@/components/card-encuesta"
+import { Info, ArrowLeft, RefreshCw, CheckCircle2 } from "lucide-react"
 
 export default function FormulariosPage() {
   return (
@@ -22,6 +23,65 @@ export default function FormulariosPage() {
               Tu participación es fundamental para mejorar la gestión de residuos sólidos en el cantón. Completa
               nuestras encuestas y aporta información valiosa para diseñar soluciones efectivas.
             </p>
+          </div>
+        </section>
+
+        {/* Instrucciones de uso */}
+        <section className="py-16 md:py-20 bg-primary-lighter/10 border-b border-border">
+          <div className="container-safe">
+            <div className="flex items-start gap-3 mb-8">
+              <Info className="w-6 h-6 text-primary flex-shrink-0 mt-1" />
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-2">Cómo usar las encuestas</h2>
+                <p className="text-foreground/60 text-lg">
+                  Nuestras encuestas están alojadas en Tally, una plataforma segura y fácil de usar. Sigue estas
+                  instrucciones para completar tu participación.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid md:grid-cols-3 gap-6">
+              <div className="bg-white dark:bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-accent-lighter flex items-center justify-center mb-4">
+                  <ArrowLeft className="w-6 h-6 text-accent" />
+                </div>
+                <h3 className="font-bold text-foreground mb-2 text-lg">Puedes retroceder</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">
+                  Durante la encuesta, puedes retroceder a preguntas anteriores para revisar o modificar tus respuestas
+                  antes de finalizar. No te preocupes si necesitas corregir algo.
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-primary-lighter flex items-center justify-center mb-4">
+                  <RefreshCw className="w-6 h-6 text-primary" />
+                </div>
+                <h3 className="font-bold text-foreground mb-2 text-lg">Responde múltiples veces</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">
+                  Una vez finalizada la encuesta, puedes recargar la página del enlace para llenar una nueva encuesta.
+                  Esto es útil si deseas proporcionar información adicional o de otro hogar.
+                </p>
+              </div>
+
+              <div className="bg-white dark:bg-card rounded-xl p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
+                <div className="w-12 h-12 rounded-full bg-accent3-lighter flex items-center justify-center mb-4">
+                  <CheckCircle2 className="w-6 h-6 text-accent3" />
+                </div>
+                <h3 className="font-bold text-foreground mb-2 text-lg">Seguro y confidencial</h3>
+                <p className="text-sm text-foreground/60 leading-relaxed">
+                  Todas las encuestas están alojadas en Tally, una plataforma segura que protege tu información. Tus
+                  respuestas son confidenciales y se utilizarán únicamente con fines de investigación.
+                </p>
+              </div>
+            </div>
+
+            <div className="mt-8 p-4 bg-accent-lighter/20 border border-accent-lighter rounded-lg">
+              <p className="text-sm text-foreground/70 leading-relaxed">
+                <strong className="text-foreground">Nota:</strong> Las encuestas están optimizadas para funcionar en
+                cualquier dispositivo. Te recomendamos completarlas en un ambiente tranquilo donde puedas concentrarte y
+                proporcionar información precisa.
+              </p>
+            </div>
           </div>
         </section>
 

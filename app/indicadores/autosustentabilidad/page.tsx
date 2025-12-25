@@ -1,24 +1,6 @@
-import type { Metadata } from "next"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { ComportamientoContent } from "@/components/comportamiento-content"
-
-export const metadata: Metadata = {
-  title: "Comportamiento Proambiental",
-  description:
-    "Análisis detallado de factores que inciden en el comportamiento proambiental en la gestión de desechos sólidos domiciliarios del cantón Daule. Indicadores de autosustentabilidad y cultura ambiental.",
-  keywords: [
-    "comportamiento proambiental",
-    "autosustentabilidad",
-    "gestión de desechos",
-    "cultura ambiental",
-    "Daule Ecuador",
-  ],
-  openGraph: {
-    title: "Comportamiento Proambiental - Cantón Daule",
-    description: "Análisis de factores que inciden en el comportamiento proambiental en la gestión de desechos sólidos",
-  },
-}
 
 export default async function AutosustentabilidadPage() {
   return (

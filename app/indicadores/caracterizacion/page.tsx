@@ -22,17 +22,6 @@ export default function CaracterizacionPage() {
   const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    document.title = "Caracterización de Desechos | Gestión de Residuos - Cantón Daule"
-    const metaDescription = document.querySelector('meta[name="description"]')
-    if (metaDescription) {
-      metaDescription.setAttribute(
-        "content",
-        "Análisis detallado de los desechos sólidos generados en los hogares del cantón Daule. Estadísticas, gráficos y datos de caracterización de residuos por ubicación y tipo.",
-      )
-    }
-  }, [])
-
-  useEffect(() => {
     const cargarDatos = async () => {
       try {
         setLoading(true)

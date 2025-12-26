@@ -109,23 +109,25 @@ export default function CaracterizacionPage() {
   const datosGraficos = calcularDatosGraficos(registrosFiltrados)
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background overflow-x-hidden">
       <Header />
-      <main className="flex-grow w-full max-w-full px-6 sm:px-8 md:px-10 py-12 lg:py-16">
-        <div className="mx-auto">
-          <div className="mb-10 border-b-2 border-primary/20 pb-6">
-            <h1 className="text-4xl font-bold text-primary-text mb-3">Caracterización de Desechos Sólidos</h1>
-            <p className="text-secondary-text text-lg">
+      <main className="flex-grow w-full py-8 sm:py-10 md:py-12 lg:py-16">
+        <div className="container-safe">
+          <div className="mb-8 sm:mb-10 border-b-2 border-primary/20 pb-4 sm:pb-6">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-text mb-2 sm:mb-3">
+              Caracterización de Desechos Sólidos
+            </h1>
+            <p className="text-secondary-text text-sm sm:text-base md:text-lg">
               Análisis detallado de los desechos sólidos generados en los hogares del cantón Daule
             </p>
           </div>
 
-          <div className="mb-10 bg-secondary-bg p-8 rounded-lg border border-border">
+          <div className="mb-8 sm:mb-10 bg-secondary-bg p-5 sm:p-6 md:p-8 rounded-lg border border-border">
             {loading ? (
-              <p className="text-secondary-text">Cargando datos...</p>
+              <p className="text-secondary-text text-sm sm:text-base">Cargando datos...</p>
             ) : error ? (
-              <div className="bg-red-50 border border-red-200 text-red-800 px-4 py-3 rounded">
-                <p className="font-medium">{error}</p>
+              <div className="bg-red-50 border border-red-200 text-red-800 px-3 py-2 sm:px-4 sm:py-3 rounded">
+                <p className="font-medium text-sm sm:text-base">{error}</p>
               </div>
             ) : (
               <CaracterizacionFiltro registros={registros} onFiltroChange={setRegistrosFiltrados} />
@@ -135,12 +137,12 @@ export default function CaracterizacionPage() {
           {/* Resumen */}
           {!loading && !error && (
             <>
-              <div className="mb-12">
+              <div className="mb-8 sm:mb-10 md:mb-12">
                 <CaracterizacionResumen {...estadisticas} />
               </div>
 
               {/* Gráficos */}
-              <div className="mb-12">
+              <div className="mb-8 sm:mb-10 md:mb-12">
                 <CaracterizacionGraficos datos={datosGraficos} />
               </div>
 

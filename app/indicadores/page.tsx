@@ -21,42 +21,46 @@ export default function IndicadoresPage() {
   ]
 
   return (
-    <div className="flex flex-col min-h-screen bg-background">
+    <div className="flex flex-col min-h-screen bg-background overflow-x-hidden">
       <Header />
-      <main className="flex-grow">
-        <section className="gradient-eco text-white py-20 md:py-28 relative overflow-hidden">
+      <main className="flex-grow w-full">
+        <section className="gradient-eco text-white py-12 sm:py-16 md:py-20 lg:py-28 relative overflow-hidden">
           <div className="absolute inset-0 bg-black/5"></div>
           <div className="container-safe relative z-10">
             <span className="inline-block px-3 py-1 rounded-full bg-white/15 text-white text-xs font-medium mb-4">
               DATOS Y ANÁLISIS
             </span>
-            <h1 className="text-4xl md:text-5xl lg:text-5xl font-bold mb-6 text-balance leading-tight">Indicadores</h1>
-            <p className="text-lg md:text-xl text-white/90 max-w-2xl text-balance leading-relaxed">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 sm:mb-6 text-balance leading-tight">
+              Indicadores
+            </h1>
+            <p className="text-base sm:text-lg md:text-xl text-white/90 max-w-2xl text-balance leading-relaxed">
               Datos en tiempo real, gráficos analíticos y métricas detalladas sobre sostenibilidad ambiental del cantón.
             </p>
           </div>
         </section>
 
         {/* Tarjetas de indicadores mejoradas */}
-        <section className="py-20 md:py-28 bg-background">
+        <section className="py-12 sm:py-16 md:py-20 lg:py-28 bg-background">
           <div className="container-safe">
-            <div className="mb-16">
+            <div className="mb-12 sm:mb-16">
               <span className="inline-block px-3 py-1 rounded-full bg-accent-lighter text-accent font-medium text-xs mb-3">
                 SECCIONES DE INDICADORES
               </span>
-              <h2 className="text-3xl md:text-4xl font-bold text-primary-text mb-4">Datos y gráficos disponibles</h2>
-              <p className="text-secondary-text max-w-2xl text-lg">
+              <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-primary-text mb-4">
+                Datos y gráficos disponibles
+              </h2>
+              <p className="text-secondary-text max-w-2xl text-base sm:text-lg">
                 Explora nuestras encuestas principales con análisis detallados, visualización de datos y indicadores de
                 sostenibilidad ambiental.
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
               {encuestas.map((encuesta) => (
                 <Link key={encuesta.slug} href={`/indicadores/${encuesta.slug}`}>
                   <div className="group cursor-pointer h-full">
                     <div
-                      className={`flex flex-col h-full rounded-xl border-2 transition-all duration-300 p-8 ${
+                      className={`flex flex-col h-full rounded-xl border-2 transition-all duration-300 p-6 sm:p-8 ${
                         encuesta.color === "primary"
                           ? "border-primary/20 bg-primary-lighter hover:border-primary/40"
                           : "border-accent/20 bg-accent-lighter hover:border-accent/40"
@@ -76,7 +80,7 @@ export default function IndicadoresPage() {
 
                       {/* Contenido */}
                       <h3
-                        className={`text-xl font-bold text-primary-text mb-3 group-hover:transition-colors ${
+                        className={`text-lg sm:text-xl font-bold text-primary-text mb-3 group-hover:transition-colors ${
                           encuesta.color === "primary" ? "group-hover:text-primary" : "group-hover:text-accent"
                         }`}
                       >

@@ -853,7 +853,7 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
                     {tablasSeccion?.map((tabla, idx) => (
                       <div key={idx}>
                         <h4 className="text-lg font-semibold text-foreground mb-4">{tabla.nombreGrupo}</h4>
-                        <div className="w-full overflow-x-auto">
+                        <div className="w-full">
                           <Table>
                             <TableHeader>
                               <TableRow>
@@ -885,112 +885,272 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
 
                 {seccionKey !== "distribucion-demografica" && tablasLikert && tablasLikert.length > 0 && (
                   <div className="space-y-8">
-                    <div className="w-full overflow-x-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="font-bold w-2/5">Pregunta</TableHead>
-                            <TableHead className="font-bold text-center w-[10%]">Totalmente Desacuerdo</TableHead>
-                            <TableHead className="font-bold text-center w-[10%]">Desacuerdo</TableHead>
-                            <TableHead className="font-bold text-center w-[10%]">Indiferente</TableHead>
-                            <TableHead className="font-bold text-center w-[10%]">De Acuerdo</TableHead>
-                            <TableHead className="font-bold text-center w-[10%]">Totalmente Acuerdo</TableHead>
-                            <TableHead className="font-bold text-center bg-muted w-[10%]">Promedio</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {tablasLikert.map((tabla, idx) => (
-                            <TableRow key={idx}>
-                              <TableCell className="font-medium">{tabla.pregunta}</TableCell>
-                              <TableCell className="text-center">
-                                {tabla.totalEncuestas > 0
-                                  ? ((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) +
-                                    "%"
+                    <div className="w-full">
+                      {/* Versión Desktop: Tabla tradicional */}
+                      <div className="hidden lg:block">
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead className="font-bold">Pregunta</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">
+                                Totalmente Desacuerdo
+                              </TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">Desacuerdo</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">Indiferente</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">De Acuerdo</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">
+                                Totalmente Acuerdo
+                              </TableHead>
+                              <TableHead className="font-bold text-center bg-muted whitespace-nowrap">
+                                Promedio
+                              </TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {tablasLikert.map((tabla, idx) => (
+                              <TableRow key={idx}>
+                                <TableCell className="font-medium text-sm leading-tight py-3">
+                                  {tabla.pregunta}
+                                </TableCell>
+                                <TableCell className="text-center text-sm py-3">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(
+                                        1,
+                                      ) + "%"
+                                    : "0.0%"}
+                                </TableCell>
+                                <TableCell className="text-center text-sm py-3">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                    : "0.0%"}
+                                </TableCell>
+                                <TableCell className="text-center text-sm py-3">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                    : "0.0%"}
+                                </TableCell>
+                                <TableCell className="text-center text-sm py-3">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                    : "0.0%"}
+                                </TableCell>
+                                <TableCell className="text-center text-sm py-3">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100).toFixed(
+                                        1,
+                                      ) + "%"
+                                    : "0.0%"}
+                                </TableCell>
+                                <TableCell className="text-center bg-muted font-bold text-sm py-3">
+                                  {tabla.promedio.toFixed(1)}%
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                            <TableRow className="bg-muted/70">
+                              <TableCell className="font-bold text-sm py-3">Promedio General</TableCell>
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
                                   : "0.0%"}
                               </TableCell>
-                              <TableCell className="text-center">
-                                {tabla.totalEncuestas > 0
-                                  ? ((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
                                   : "0.0%"}
                               </TableCell>
-                              <TableCell className="text-center">
-                                {tabla.totalEncuestas > 0
-                                  ? ((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
                                   : "0.0%"}
                               </TableCell>
-                              <TableCell className="text-center">
-                                {tabla.totalEncuestas > 0
-                                  ? ((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
                                   : "0.0%"}
                               </TableCell>
-                              <TableCell className="text-center">
-                                {tabla.totalEncuestas > 0
-                                  ? ((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) +
-                                    "%"
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
                                   : "0.0%"}
                               </TableCell>
-                              <TableCell className="text-center bg-muted font-bold">
-                                {tabla.promedio.toFixed(1)}%
+                              <TableCell className="text-center bg-muted font-bold text-sm py-3">
+                                {tablasLikert.length > 0
+                                  ? (
+                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
                               </TableCell>
                             </TableRow>
-                          ))}
-                          <TableRow className="bg-muted/70">
-                            <TableCell className="font-bold">Promedio General</TableCell>
-                            <TableCell className="text-center font-bold">
-                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                ? (
-                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Totalmente desacuerdo"], 0) /
-                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                                    100
-                                  ).toFixed(1) + "%"
-                                : "0.0%"}
-                            </TableCell>
-                            <TableCell className="text-center font-bold">
-                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                ? (
-                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Desacuerdo"], 0) /
-                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                                    100
-                                  ).toFixed(1) + "%"
-                                : "0.0%"}
-                            </TableCell>
-                            <TableCell className="text-center font-bold">
-                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                ? (
-                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Indiferente"], 0) /
-                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                                    100
-                                  ).toFixed(1) + "%"
-                                : "0.0%"}
-                            </TableCell>
-                            <TableCell className="text-center font-bold">
-                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                ? (
-                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["De acuerdo"], 0) /
-                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                                    100
-                                  ).toFixed(1) + "%"
-                                : "0.0%"}
-                            </TableCell>
-                            <TableCell className="text-center font-bold">
-                              {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                ? (
-                                    (tablasLikert.reduce((sum, t) => sum + t.conteos["Totalmente de acuerdo"], 0) /
-                                      (tablasLikert[0].totalEncuestas * tablasLikert.length)) *
-                                    100
-                                  ).toFixed(1) + "%"
-                                : "0.0%"}
-                            </TableCell>
-                            <TableCell className="text-center bg-muted font-bold text-lg">
-                              {tablasLikert.length > 0
-                                ? (tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length).toFixed(
-                                    1,
-                                  ) + "%"
-                                : "0.0%"}
-                            </TableCell>
-                          </TableRow>
-                        </TableBody>
-                      </Table>
+                          </TableBody>
+                        </Table>
+                      </div>
+
+                      <div className="lg:hidden space-y-6">
+                        {tablasLikert.map((tabla, idx) => (
+                          <div key={idx} className="border rounded-lg p-4 bg-card">
+                            <h5 className="font-semibold text-sm mb-4 text-foreground leading-tight">
+                              {tabla.pregunta}
+                            </h5>
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center py-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Totalmente Desacuerdo</span>
+                                <span className="text-sm font-semibold">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(
+                                        1,
+                                      ) + "%"
+                                    : "0.0%"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center py-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Desacuerdo</span>
+                                <span className="text-sm font-semibold">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                    : "0.0%"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center py-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Indiferente</span>
+                                <span className="text-sm font-semibold">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                    : "0.0%"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center py-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">De Acuerdo</span>
+                                <span className="text-sm font-semibold">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
+                                    : "0.0%"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center py-2 border-b">
+                                <span className="text-xs font-medium text-muted-foreground">Totalmente Acuerdo</span>
+                                <span className="text-sm font-semibold">
+                                  {tabla.totalEncuestas > 0
+                                    ? ((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100).toFixed(
+                                        1,
+                                      ) + "%"
+                                    : "0.0%"}
+                                </span>
+                              </div>
+                              <div className="flex justify-between items-center py-2 bg-muted rounded px-3 mt-2">
+                                <span className="text-xs font-bold">Promedio</span>
+                                <span className="text-sm font-bold">{tabla.promedio.toFixed(1)}%</span>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+
+                        {/* Promedio General en mobile */}
+                        <div className="border rounded-lg p-4 bg-muted/70">
+                          <h5 className="font-bold text-sm mb-4">Promedio General</h5>
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Totalmente Desacuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Desacuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Indiferente</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">De Acuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Totalmente Acuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div className="col-span-2 mt-2 pt-2 border-t">
+                              <span className="text-muted-foreground block mb-1">Promedio Total</span>
+                              <span className="font-bold text-base">
+                                {tablasLikert.length > 0
+                                  ? (
+                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}

@@ -49,8 +49,8 @@ const SOLID_COLORS = [
   "rgb(251, 191, 36)",
 ]
 
-/* Función para calcular el ancho de etiqueta del eje Y dinámicamente */
-const calculateYAxisWidth = (datos: any[]) => {
+const calculateYAxisWidth = (datos: any[], isMobile: boolean) => {
+  if (isMobile) return 35
   const maxValue = Math.max(...datos.map((d) => d.value))
   const maxDigits = maxValue.toFixed(0).length
   return Math.max(50, maxDigits * 8 + 20)
@@ -58,21 +58,37 @@ const calculateYAxisWidth = (datos: any[]) => {
 
 export function CaracterizacionGraficos({ datos }: GraficosProps) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
+  const [isMobile, setIsMobile] = useState(false)
 
-  const yAxisWidth = calculateYAxisWidth(datos)
-  const barChartMargin = { top: 30, right: 30, left: yAxisWidth, bottom: 100 }
-  const lineChartMargin = { top: 30, right: 30, left: yAxisWidth + 80, bottom: 100 }
+  useState(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  })
+
+  const yAxisWidth = calculateYAxisWidth(datos, isMobile)
+  const barChartMargin = isMobile
+    ? { top: 20, right: 5, left: yAxisWidth, bottom: 80 }
+    : { top: 30, right: 30, left: yAxisWidth, bottom: 100 }
+  const lineChartMargin = isMobile
+    ? { top: 20, right: 5, left: yAxisWidth + 10, bottom: 80 }
+    : { top: 30, right: 30, left: yAxisWidth + 80, bottom: 100 }
 
   return (
-    <Card className="p-6 border border-border">
-      <div className="mb-8">
-        <h3 className="text-2xl font-bold text-foreground mb-6">Distribución de Desechos por Categoría</h3>
-        <div className="flex gap-3 flex-wrap">
+    <Card className="p-3 sm:p-4 md:p-6 border border-border">
+      <div className="mb-4 sm:mb-6 md:mb-8">
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-3 sm:mb-4 md:mb-6">
+          Distribución de Desechos por Categoría
+        </h3>
+        <div className="flex gap-2 sm:gap-3 flex-wrap">
           <Button
             onClick={() => setTipoGrafico("barras")}
             variant={tipoGrafico === "barras" ? "default" : "outline"}
             size="sm"
-            className={tipoGrafico === "barras" ? "bg-primary text-white hover:bg-primary" : ""}
+            className={tipoGrafico === "barras" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
           >
             Gráfico de Barras
           </Button>
@@ -80,7 +96,7 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
             onClick={() => setTipoGrafico("torta")}
             variant={tipoGrafico === "torta" ? "default" : "outline"}
             size="sm"
-            className={tipoGrafico === "torta" ? "bg-primary text-white hover:bg-primary" : ""}
+            className={tipoGrafico === "torta" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
           >
             Gráfico Circular
           </Button>
@@ -88,16 +104,16 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
             onClick={() => setTipoGrafico("lineal")}
             variant={tipoGrafico === "lineal" ? "default" : "outline"}
             size="sm"
-            className={tipoGrafico === "lineal" ? "bg-primary text-white hover:bg-primary" : ""}
+            className={tipoGrafico === "lineal" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
           >
             Gráfico de Línea
           </Button>
         </div>
       </div>
 
-      <div className="w-full">
+      <div className="w-full overflow-hidden">
         {tipoGrafico === "barras" && (
-          <div style={{ width: "100%", height: "500px" }}>
+          <div className="w-full" style={{ height: isMobile ? "400px" : "500px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <BarChart data={datos} margin={barChartMargin}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -105,17 +121,19 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   dataKey="name"
                   angle={-45}
                   textAnchor="end"
-                  height={120}
-                  fontSize={12}
+                  height={isMobile ? 100 : 120}
+                  fontSize={isMobile ? 9 : 12}
                   tick={{ fill: "#4b5563" }}
+                  interval={0}
                 />
-                <YAxis fontSize={12} tick={{ fill: "#4b5563" }} width={yAxisWidth} />
+                <YAxis fontSize={isMobile ? 10 : 12} tick={{ fill: "#4b5563" }} width={yAxisWidth} />
                 <Tooltip
                   formatter={(value) => `${(value as number).toFixed(2)} kg`}
                   contentStyle={{
                     backgroundColor: "#fff",
                     border: "1px solid #e5e7eb",
                     borderRadius: "6px",
+                    fontSize: isMobile ? "11px" : "14px",
                   }}
                 />
                 <Bar
@@ -123,13 +141,14 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   label={(props: any) => {
                     const { x, y, width, index } = props
                     const porcentaje = datos[index]?.porcentaje ?? 0
+                    if (isMobile && porcentaje < 5) return null
                     return (
                       <text
                         x={x + width / 2}
                         y={y - 8}
                         fill="#1f2937"
                         textAnchor="middle"
-                        fontSize={12}
+                        fontSize={isMobile ? 9 : 12}
                         fontWeight="bold"
                       >
                         {`${porcentaje.toFixed(1)}%`}
@@ -153,7 +172,7 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
         )}
 
         {tipoGrafico === "torta" && (
-          <div style={{ width: "100%", height: "600px" }}>
+          <div className="w-full" style={{ height: isMobile ? "500px" : "600px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie
@@ -163,17 +182,20 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   labelLine={false}
                   label={(entry: any) => {
                     const porcentaje = entry.porcentaje ?? 0
-                    if (porcentaje < 2) return ""
-                    return `${porcentaje.toFixed(1)}%`
+                    if (isMobile && porcentaje < 3) return ""
+                    if (!isMobile && porcentaje < 2) return ""
+                    return isMobile
+                      ? `${porcentaje.toFixed(1)}%`
+                      : `${entry.name.substring(0, 15)}... ${porcentaje.toFixed(1)}%`
                   }}
-                  outerRadius={160}
-                  innerRadius={80}
+                  outerRadius={isMobile ? 90 : 160}
+                  innerRadius={isMobile ? 45 : 80}
                   fill="#8884d8"
                   dataKey="value"
                   paddingAngle={2}
                   activeIndex={undefined}
                   activeShape={{
-                    outerRadius: 170,
+                    outerRadius: isMobile ? 95 : 170,
                     stroke: "#fff",
                     strokeWidth: 3,
                   }}
@@ -193,15 +215,17 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                     backgroundColor: "#fff",
                     border: "1px solid #e5e7eb",
                     borderRadius: "6px",
+                    fontSize: isMobile ? "11px" : "14px",
                   }}
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={36}
-                  wrapperStyle={{ paddingTop: "20px", fontSize: "12px" }}
+                  height={isMobile ? 80 : 36}
+                  wrapperStyle={{ paddingTop: "20px", fontSize: isMobile ? "9px" : "12px" }}
                   formatter={(value, entry: any) => {
                     const porcentaje = entry.payload?.porcentaje ?? 0
-                    return `${value} (${porcentaje.toFixed(1)}%)`
+                    const nombreCompleto = `${value} (${porcentaje.toFixed(1)}%)`
+                    return isMobile ? nombreCompleto.substring(0, 30) + "..." : nombreCompleto
                   }}
                 />
               </PieChart>
@@ -210,7 +234,7 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
         )}
 
         {tipoGrafico === "lineal" && (
-          <div style={{ width: "100%", height: "500px" }}>
+          <div className="w-full" style={{ height: isMobile ? "400px" : "500px" }}>
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={datos} margin={lineChartMargin}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
@@ -218,17 +242,19 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   dataKey="name"
                   angle={-45}
                   textAnchor="end"
-                  height={120}
-                  fontSize={12}
+                  height={isMobile ? 100 : 120}
+                  fontSize={isMobile ? 9 : 12}
                   tick={{ fill: "#4b5563" }}
+                  interval={0}
                 />
-                <YAxis fontSize={12} tick={{ fill: "#4b5563" }} width={yAxisWidth} />
+                <YAxis fontSize={isMobile ? 10 : 12} tick={{ fill: "#4b5563" }} width={yAxisWidth} />
                 <Tooltip
                   formatter={(value) => `${(value as number).toFixed(2)} kg`}
                   contentStyle={{
                     backgroundColor: "#fff",
                     border: "1px solid #e5e7eb",
                     borderRadius: "6px",
+                    fontSize: isMobile ? "11px" : "14px",
                   }}
                 />
                 <Line
@@ -240,14 +266,28 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                     const pointColor = COLORS[index % COLORS.length]
                     return (
                       <g key={`dot-${payload.name}`}>
-                        <circle cx={cx} cy={cy} r={6} fill={pointColor.bg} stroke="white" strokeWidth={2} />
-                        <text x={cx} y={cy - 28} textAnchor="middle" fontSize={11} fontWeight="600" fill="#1f2937">
+                        <circle
+                          cx={cx}
+                          cy={cy}
+                          r={isMobile ? 4 : 6}
+                          fill={pointColor.bg}
+                          stroke="white"
+                          strokeWidth={2}
+                        />
+                        <text
+                          x={cx}
+                          y={cy - (isMobile ? 18 : 28)}
+                          textAnchor="middle"
+                          fontSize={isMobile ? 9 : 11}
+                          fontWeight="600"
+                          fill="#1f2937"
+                        >
                           {`${payload.porcentaje.toFixed(1)}%`}
                         </text>
                       </g>
                     )
                   }}
-                  strokeWidth={3}
+                  strokeWidth={isMobile ? 2 : 3}
                 />
               </LineChart>
             </ResponsiveContainer>

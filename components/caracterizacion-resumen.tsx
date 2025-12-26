@@ -13,7 +13,6 @@ export function CaracterizacionResumen({
   totalDesechos,
   promedioPorEncuesta,
 }: CaracterizacionResumenProps) {
-  /* Todas las métricas ahora tienen el mismo diseño consistente con gradientes y misma estructura */
   const metricas = [
     {
       label: "Total de Encuestas",
@@ -42,7 +41,7 @@ export function CaracterizacionResumen({
       {metricas.map((metrica) => (
         <Card
           key={metrica.label}
-          className={`p-6 border-2 border-border bg-gradient-to-br ${metrica.color} shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-300`}
+          className={`p-6 border-2 border-border bg-gradient-to-br ${metrica.color} shadow-lg hover:shadow-xl transition-shadow duration-300`}
         >
           <div className="flex flex-col">
             <p className="text-sm font-semibold text-white/90 mb-2">{metrica.label}</p>

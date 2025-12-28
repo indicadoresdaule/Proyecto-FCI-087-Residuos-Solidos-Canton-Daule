@@ -129,7 +129,7 @@ const SECCIONES = {
       "problema-comunidad": {
         nombre: "¿Los desechos son un gran problema?",
         campo: "desechos_solidos_problema_comunidad",
-        valores: ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalfully de acuerdo"],
+        valores: ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalmente de acuerdo"],
       },
     },
   },
@@ -1266,7 +1266,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                       tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
                                     ).toFixed(1) + "%"
                                   : "0.0%"}
-                              </TableHead>
+                              </TableCell>
                             </TableRow>
                           </TableBody>
                         </Table>

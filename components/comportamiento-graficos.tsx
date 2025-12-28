@@ -435,13 +435,13 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
           )}
 
           {tipoGrafico === "torta" && (
-            <div className="w-full" style={{ height: esMovil ? "500px" : "600px" }}>
+            <div className="w-full" style={{ height: esMovil ? "550px" : "650px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={datosGraficoTorta}
                     cx="50%"
-                    cy="50%"
+                    cy="45%"
                     labelLine={false}
                     label={(entry: any) => {
                       const porcentaje = entry.porcentaje ?? 0
@@ -449,14 +449,14 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       if (!esMovil && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={esMovil ? 90 : 160}
+                    outerRadius={esMovil ? 90 : 150}
                     innerRadius={esMovil ? 45 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: esMovil ? 95 : 170,
+                      outerRadius: esMovil ? 95 : 160,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}
@@ -480,18 +480,26 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                     }}
                   />
                   <Legend
+                    layout="vertical"
                     verticalAlign="bottom"
-                    height={esMovil ? 120 : 150}
+                    align="center"
+                    height={esMovil ? 140 : 180}
                     wrapperStyle={{
-                      paddingTop: esMovil ? "10px" : "20px",
-                      fontSize: esMovil ? "9px" : "11px",
-                      maxHeight: esMovil ? "120px" : "150px",
+                      paddingTop: esMovil ? "15px" : "25px",
+                      fontSize: esMovil ? "10px" : "12px",
+                      maxHeight: esMovil ? "140px" : "180px",
                       overflowY: "auto",
                     }}
                     formatter={(value, entry: any) => {
                       const porcentaje = entry.payload?.porcentaje ?? 0
-                      return `${value} (${porcentaje.toFixed(1)}%)`
+                      return (
+                        <span className="inline-block min-w-[150px]">
+                          {value} <span className="font-semibold">({porcentaje.toFixed(1)}%)</span>
+                        </span>
+                      )
                     }}
+                    iconSize={esMovil ? 12 : 14}
+                    iconType="circle"
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -977,13 +985,13 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 )}
 
                 {tipoGrafico === "torta" && (
-                  <div style={{ width: "100%", height: esMovil ? "500px" : "600px" }}>
+                  <div style={{ width: "100%", height: esMovil ? "550px" : "650px" }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={datosGrafico}
                           cx="50%"
-                          cy="50%"
+                          cy="45%"
                           labelLine={false}
                           label={(entry: any) => {
                             const porcentaje = entry.porcentaje ?? 0
@@ -991,14 +999,14 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             if (!esMovil && porcentaje < 2) return ""
                             return `${porcentaje.toFixed(1)}%`
                           }}
-                          outerRadius={esMovil ? 90 : 160}
+                          outerRadius={esMovil ? 90 : 150}
                           innerRadius={esMovil ? 45 : 80}
                           fill="#8884d8"
                           dataKey="value"
                           paddingAngle={2}
                           activeIndex={undefined}
                           activeShape={{
-                            outerRadius: esMovil ? 95 : 170,
+                            outerRadius: esMovil ? 95 : 160,
                             stroke: "#fff",
                             strokeWidth: 3,
                           }}
@@ -1022,18 +1030,26 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                           }}
                         />
                         <Legend
+                          layout="vertical"
                           verticalAlign="bottom"
-                          height={esMovil ? 120 : 150}
+                          align="center"
+                          height={esMovil ? 140 : 180}
                           wrapperStyle={{
-                            paddingTop: esMovil ? "10px" : "20px",
-                            fontSize: esMovil ? "9px" : "11px",
-                            maxHeight: esMovil ? "120px" : "150px",
+                            paddingTop: esMovil ? "15px" : "25px",
+                            fontSize: esMovil ? "10px" : "12px",
+                            maxHeight: esMovil ? "140px" : "180px",
                             overflowY: "auto",
                           }}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
-                            return `${value} (${porcentaje.toFixed(1)}%)`
+                            return (
+                              <span className="inline-block min-w-[150px]">
+                                {value} <span className="font-semibold">({porcentaje.toFixed(1)}%)</span>
+                              </span>
+                            )
                           }}
+                          iconSize={esMovil ? 12 : 14}
+                          iconType="circle"
                         />
                       </PieChart>
                     </ResponsiveContainer>

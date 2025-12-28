@@ -306,13 +306,26 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
-// Función para formatear porcentaje: 79.2% para decimal, 70% para entero
+// Función para formatear porcentaje: dos decimales si es decimal, ninguno si es entero
 const formatearPorcentaje = (valor: number): string => {
-  const redondeado = Math.round(valor * 10) / 10; // Redondear a una decimal
-  if (redondeado % 1 === 0) {
-    return `${redondeado.toFixed(0)}%`;
+  const redondeado = Math.round(valor * 100) / 100 // Redondear a 2 decimales
+  const esEntero = Math.abs(redondeado - Math.round(redondeado)) < 0.001
+  
+  if (esEntero) {
+    return `${Math.round(redondeado)}%`
   }
-  return `${redondeado.toFixed(1)}%`;
+  return `${redondeado.toFixed(2)}%`
+}
+
+// Función para formatear porcentaje con 1 decimal para gráficos (cuando se usa toFixed(1))
+const formatearPorcentajeGrafico = (valor: number): string => {
+  const redondeado = Math.round(valor * 10) / 10 // Redondear a 1 decimal
+  const esEntero = Math.abs(redondeado - Math.round(redondeado)) < 0.01
+  
+  if (esEntero) {
+    return `${Math.round(redondeado)}%`
+  }
+  return `${redondeado.toFixed(1)}%`
 }
 
 // Mapeo de nombres de campos a preguntas legibles COMPLETAS
@@ -567,7 +580,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       const porcentaje = entry.porcentaje ?? 0
                       if (esMovil && porcentaje < 5) return ""
                       if (!esMovil && porcentaje < 2) return ""
-                      return `${formatearPorcentaje(porcentaje)}`
+                      return formatearPorcentajeGrafico(porcentaje)
                     }}
                     outerRadius={esMovil ? 70 : 160}
                     innerRadius={esMovil ? 35 : 80}
@@ -610,7 +623,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                     }}
                     formatter={(value, entry: any) => {
                       const porcentaje = entry.payload?.porcentaje ?? 0
-                      return `${value} (${formatearPorcentaje(porcentaje)})`
+                      return `${value} (${formatearPorcentajeGrafico(porcentaje)})`
                     }}
                   />
                 </PieChart>
@@ -1055,7 +1068,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               fontSize={esMovil ? 9 : 12}
                               fontWeight="bold"
                             >
-                              {`${formatearPorcentaje(porcentaje)}`}
+                              {formatearPorcentajeGrafico(porcentaje)}
                             </text>
                           )
                         }}
@@ -1087,7 +1100,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             const porcentaje = entry.porcentaje ?? 0
                             if (esMovil && porcentaje < 5) return ""
                             if (!esMovil && porcentaje < 2) return ""
-                            return `${formatearPorcentaje(porcentaje)}`
+                            return formatearPorcentajeGrafico(porcentaje)
                           }}
                           outerRadius={esMovil ? 70 : 160}
                           innerRadius={esMovil ? 35 : 80}
@@ -1130,7 +1143,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                           }}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
-                            return `${value} (${formatearPorcentaje(porcentaje)})`
+                            return `${value} (${formatearPorcentajeGrafico(porcentaje)})`
                           }}
                         />
                       </PieChart>
@@ -1186,7 +1199,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                 fontWeight="600"
                                 fill="#1f2937"
                               >
-                                {`${formatearPorcentaje(payload.porcentaje)}`}
+                                {formatearPorcentajeGrafico(payload.porcentaje)}
                               </text>
                             </g>
                           )

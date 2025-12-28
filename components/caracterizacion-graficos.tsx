@@ -141,7 +141,6 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   label={(props: any) => {
                     const { x, y, width, index } = props
                     const porcentaje = datos[index]?.porcentaje ?? 0
-                    if (isMobile && porcentaje < 2) return null
                     return (
                       <text
                         x={x + width / 2}

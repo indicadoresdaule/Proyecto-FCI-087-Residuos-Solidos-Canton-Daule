@@ -549,10 +549,10 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                     cx="50%"
                     cy="50%"
                     labelLine={false}
-                    // En móvil y PC mostrar solo porcentaje en el gráfico
                     label={(entry: any) => {
                       const porcentaje = entry.porcentaje ?? 0
-                      if (porcentaje < 2) return ""
+                      if (isMobile && porcentaje < 3) return ""
+                      if (!isMobile && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
                     outerRadius={isMobile ? 90 : 160}
@@ -585,7 +585,6 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       fontSize: isMobile ? "11px" : "14px",
                     }}
                   />
-                  // Leyenda que muestra todas las categorías con porcentajes completos
                   <Legend
                     verticalAlign="bottom"
                     height={isMobile ? 120 : 150}

@@ -306,6 +306,12 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
+// Función para calcular porcentaje con una decimal
+const calcularPorcentaje = (valor: number, total: number): string => {
+  if (total === 0) return "0.0%"
+  return ((valor / total) * 100).toFixed(1) + "%"
+}
+
 // Mapeo de nombres de campos a preguntas legibles COMPLETAS
 const PREGUNTAS_LIKERT: Record<string, string> = {
   // Determinantes Socioculturales
@@ -342,7 +348,7 @@ const PREGUNTAS_LIKERT: Record<string, string> = {
     "¿La falta de información es un obstáculo para la correcta gestión de los residuos sólidos domiciliario?",
   // Sustentabilidad Ambiental
   desechos_organicos_funcionalidad: "¿Los desechos orgánicos generados en el hogar pueden tener otra funcionalidad?",
-  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de de la población?",
+  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de la población?",
   reduccion_reciclaje_reutilizacion_cuida_ambiente:
     "¿La reducción, reciclaje y la reutilización de los desechos sólidos puede cuidar al medio ambiente y a la vida silvestre?",
   transformacion_desechos_nuevos_productos:
@@ -397,7 +403,7 @@ const generarTablaLikertPorSeccion = (datos: any[], seccionSeleccionada: string)
       }
     })
 
-    // Calcular promedio ponderado
+    // Calcular promedio ponderado con una decimal
     const suma =
       conteos["Totalmente desacuerdo"] * 1 +
       conteos["Desacuerdo"] * 2 +
@@ -521,6 +527,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   />
                   <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : 60} />
                   <Tooltip
+                    formatter={(value) => `${value} respuestas`}
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
@@ -1217,14 +1224,16 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                   <TableCell className="font-medium text-xs sm:text-sm">{fila.name}</TableCell>
                                   <TableCell className="text-right text-xs sm:text-sm">{fila.value}</TableCell>
                                   <TableCell className="text-right text-xs sm:text-sm">
-                                    {fila.porcentaje.toFixed(2)}%
+                                    {calcularPorcentaje(fila.value, tabla.total)}
                                   </TableCell>
                                 </TableRow>
                               ))}
                               <TableRow className="bg-muted/50 font-bold">
                                 <TableCell className="text-xs sm:text-sm">Total</TableCell>
                                 <TableCell className="text-right text-xs sm:text-sm">{tabla.total}</TableCell>
-                                <TableCell className="text-right text-xs sm:text-sm">100%</TableCell>
+                                <TableCell className="text-right text-xs sm:text-sm">
+                                  {calcularPorcentaje(tabla.total, tabla.total)}
+                                </TableCell>
                               </TableRow>
                             </TableBody>
                           </Table>
@@ -1264,33 +1273,19 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                   {tabla.pregunta}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(
-                                        1,
-                                      ) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Totalmente desacuerdo"], tabla.totalEncuestas)}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Desacuerdo"], tabla.totalEncuestas)}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Indiferente"], tabla.totalEncuestas)}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["De acuerdo"], tabla.totalEncuestas)}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100).toFixed(
-                                        1,
-                                      ) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Totalmente de acuerdo"], tabla.totalEncuestas)}
                                 </TableCell>
                                 <TableCell className="text-center bg-muted font-bold text-sm py-3">
                                   {tabla.promedio.toFixed(1)}%
@@ -1371,45 +1366,31 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Totalmente Desacuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(
-                                        1,
-                                      ) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Totalmente desacuerdo"], tabla.totalEncuestas)}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Desacuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Desacuerdo"], tabla.totalEncuestas)}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Indiferente</span>
                                 <span className="text-sm font-semibold">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Indiferente"], tabla.totalEncuestas)}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">De Acuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100).toFixed(1) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["De acuerdo"], tabla.totalEncuestas)}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Totalmente Acuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {tabla.totalEncuestas > 0
-                                    ? ((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100).toFixed(
-                                        1,
-                                      ) + "%"
-                                    : "0.0%"}
+                                  {calcularPorcentaje(tabla.conteos["Totalmente de acuerdo"], tabla.totalEncuestas)}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 bg-muted rounded px-3 mt-2">

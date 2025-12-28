@@ -50,7 +50,7 @@ const SOLID_COLORS = [
 ]
 
 const calculateYAxisWidth = (datos: any[], isMobile: boolean) => {
-  if (isMobile) return 35
+  if (isMobile) return 30
   const maxValue = Math.max(...datos.map((d) => d.value))
   const maxDigits = maxValue.toFixed(0).length
   return Math.max(50, maxDigits * 8 + 20)
@@ -71,10 +71,10 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
 
   const yAxisWidth = calculateYAxisWidth(datos, isMobile)
   const barChartMargin = isMobile
-    ? { top: 20, right: 5, left: yAxisWidth, bottom: 80 }
+    ? { top: 20, right: 5, left: 10, bottom: 80 }
     : { top: 30, right: 30, left: yAxisWidth, bottom: 100 }
   const lineChartMargin = isMobile
-    ? { top: 20, right: 5, left: yAxisWidth + 10, bottom: 80 }
+    ? { top: 20, right: 5, left: 15, bottom: 80 }
     : { top: 30, right: 30, left: yAxisWidth + 80, bottom: 100 }
 
   return (
@@ -141,7 +141,7 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                   label={(props: any) => {
                     const { x, y, width, index } = props
                     const porcentaje = datos[index]?.porcentaje ?? 0
-                    if (isMobile && porcentaje < 5) return null
+                    if (isMobile && porcentaje < 2) return null
                     return (
                       <text
                         x={x + width / 2}
@@ -184,9 +184,7 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                     const porcentaje = entry.porcentaje ?? 0
                     if (isMobile && porcentaje < 3) return ""
                     if (!isMobile && porcentaje < 2) return ""
-                    return isMobile
-                      ? `${porcentaje.toFixed(1)}%`
-                      : `${entry.name.substring(0, 15)}... ${porcentaje.toFixed(1)}%`
+                    return `${porcentaje.toFixed(1)}%`
                   }}
                   outerRadius={isMobile ? 90 : 160}
                   innerRadius={isMobile ? 45 : 80}
@@ -220,12 +218,16 @@ export function CaracterizacionGraficos({ datos }: GraficosProps) {
                 />
                 <Legend
                   verticalAlign="bottom"
-                  height={isMobile ? 80 : 36}
-                  wrapperStyle={{ paddingTop: "20px", fontSize: isMobile ? "9px" : "12px" }}
+                  height={isMobile ? 120 : 150}
+                  wrapperStyle={{
+                    paddingTop: "20px",
+                    fontSize: isMobile ? "9px" : "11px",
+                    maxHeight: isMobile ? "120px" : "150px",
+                    overflowY: "auto",
+                  }}
                   formatter={(value, entry: any) => {
                     const porcentaje = entry.payload?.porcentaje ?? 0
-                    const nombreCompleto = `${value} (${porcentaje.toFixed(1)}%)`
-                    return isMobile ? nombreCompleto.substring(0, 30) + "..." : nombreCompleto
+                    return `${value} (${porcentaje.toFixed(1)}%)`
                   }}
                 />
               </PieChart>

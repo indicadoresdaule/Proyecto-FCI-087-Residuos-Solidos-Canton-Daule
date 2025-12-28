@@ -64,9 +64,8 @@ export default function IndicadoresPage() {
                         encuesta.color === "primary"
                           ? "border-primary/20 bg-primary-lighter hover:border-primary/40"
                           : "border-accent/20 bg-accent-lighter hover:border-accent/40"
-                      } hover:shadow-lg hover:scale-105`}
+                      } hover:shadow-lg`}
                     >
-                      {/* Indicador de color */}
                       <div className="flex items-center gap-3 mb-5">
                         <div
                           className={`w-3 h-3 rounded-full ${
@@ -78,7 +77,6 @@ export default function IndicadoresPage() {
                         </span>
                       </div>
 
-                      {/* Contenido */}
                       <h3
                         className={`text-lg sm:text-xl font-bold text-primary-text mb-3 group-hover:transition-colors ${
                           encuesta.color === "primary" ? "group-hover:text-primary" : "group-hover:text-accent"
@@ -90,7 +88,6 @@ export default function IndicadoresPage() {
                         {encuesta.descripcion}
                       </p>
 
-                      {/* CTA */}
                       <div
                         className={`flex items-center gap-2 font-semibold text-sm group-hover:gap-3 transition-all ${
                           encuesta.color === "primary" ? "text-primary" : "text-accent"

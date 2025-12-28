@@ -409,6 +409,300 @@ const PREGUNTAS_LIKERT: Record<string, string> = {
     "¿Participaría a una feria de emprendimientos comunitarios en base a desechos domiciliarios reutilizados?",
 }
 
+function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string }) {
+  const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
+  const [isMobile, setIsMobile] = useState(false)
+
+  useState(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener("resize", checkMobile)
+    return () => window.removeEventListener("resize", checkMobile)
+  })
+
+  const datosSeccion = datos.filter((item) => item.seccion === seccion)
+
+  const datosGrafico = datosSeccion.map((item) => ({
+    name: item.pregunta,
+    ...item.respuestas,
+    respuestas: item.respuestas,
+  }))
+
+  const respuestasKeys = datosSeccion.length > 0 ? Object.keys(datosSeccion[0].respuestas) : []
+
+  const datosGraficoPie = respuestasKeys.map((key) => ({
+    name: key,
+    value: datosSeccion.reduce((acc, item) => acc + (item.respuestas[key] || 0), 0),
+    porcentaje:
+      (datosSeccion.reduce((acc, item) => acc + (item.respuestas[key] || 0), 0) /
+        datosSeccion.reduce(
+          (acc, item) => acc + Object.values(item.respuestas).reduce((a: any, b: any) => a + b, 0),
+          0,
+        )) *
+      100,
+  }))
+
+  const datosTabla = datosSeccion.map((item) => ({
+    pregunta: item.pregunta,
+    respuestas: item.respuestas,
+  }))
+
+  const barChartMargin = isMobile
+    ? { top: 20, right: 5, left: 10, bottom: 100 }
+    : { top: 30, right: 30, left: 80, bottom: 120 }
+
+  const lineChartMargin = isMobile
+    ? { top: 20, right: 5, left: 15, bottom: 100 }
+    : { top: 30, right: 30, left: 80, bottom: 120 }
+
+  return (
+    <Card className="p-3 sm:p-4 md:p-6 border border-border">
+      <div className="mb-4 sm:mb-6 md:mb-8">
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-3 sm:mb-4 md:mb-6">{seccion}</h3>
+        <div className="flex gap-2 sm:gap-3 flex-wrap">
+          <Button
+            onClick={() => setTipoGrafico("barras")}
+            variant={tipoGrafico === "barras" ? "default" : "outline"}
+            size="sm"
+            className={tipoGrafico === "barras" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
+          >
+            Gráfico de Barras
+          </Button>
+          <Button
+            onClick={() => setTipoGrafico("torta")}
+            variant={tipoGrafico === "torta" ? "default" : "outline"}
+            size="sm"
+            className={tipoGrafico === "torta" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
+          >
+            Gráfico Circular
+          </Button>
+          <Button
+            onClick={() => setTipoGrafico("lineal")}
+            variant={tipoGrafico === "lineal" ? "default" : "outline"}
+            size="sm"
+            className={tipoGrafico === "lineal" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
+          >
+            Gráfico de Línea
+          </Button>
+        </div>
+      </div>
+
+      <Tabs defaultValue="graficos" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-6">
+          <TabsTrigger value="graficos" className="text-xs sm:text-sm">
+            Gráficos
+          </TabsTrigger>
+          <TabsTrigger value="tabla" className="text-xs sm:text-sm">
+            Datos Detallados
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="graficos" className="w-full overflow-hidden">
+          {tipoGrafico === "barras" && (
+            <div className="w-full" style={{ height: isMobile ? "450px" : "550px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={datosGrafico} margin={barChartMargin}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={isMobile ? 120 : 140}
+                    fontSize={isMobile ? 8 : 11}
+                    tick={{ fill: "#4b5563" }}
+                    interval={0}
+                  />
+                  <YAxis fontSize={isMobile ? 10 : 12} tick={{ fill: "#4b5563" }} width={isMobile ? 35 : 60} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "6px",
+                      fontSize: isMobile ? "11px" : "14px",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: isMobile ? "10px" : "12px" }} iconSize={isMobile ? 10 : 14} />
+                  {respuestasKeys.map((key, index) => (
+                    <Bar
+                      key={key}
+                      dataKey={`respuestas.${key}`}
+                      fill={COLORS[index % COLORS.length].bg}
+                      stroke={COLORS[index % COLORS.length].border}
+                      strokeWidth={2}
+                      radius={[4, 4, 0, 0]}
+                      name={key}
+                    />
+                  ))}
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {tipoGrafico === "torta" && (
+            <div className="w-full" style={{ height: isMobile ? "500px" : "600px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={datosGraficoPie}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    // En móvil y PC mostrar solo porcentaje en el gráfico
+                    label={(entry: any) => {
+                      const porcentaje = entry.porcentaje ?? 0
+                      if (porcentaje < 2) return ""
+                      return `${porcentaje.toFixed(1)}%`
+                    }}
+                    outerRadius={isMobile ? 90 : 160}
+                    innerRadius={isMobile ? 45 : 80}
+                    fill="#8884d8"
+                    dataKey="value"
+                    paddingAngle={2}
+                    activeIndex={undefined}
+                    activeShape={{
+                      outerRadius: isMobile ? 95 : 170,
+                      stroke: "#fff",
+                      strokeWidth: 3,
+                    }}
+                  >
+                    {datosGraficoPie.map((entry, index) => (
+                      <Cell
+                        key={`cell-${index}`}
+                        fill={SOLID_COLORS[index % SOLID_COLORS.length]}
+                        stroke="#fff"
+                        strokeWidth={2}
+                      />
+                    ))}
+                  </Pie>
+                  <Tooltip
+                    formatter={(value) => `${value} respuestas`}
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "6px",
+                      fontSize: isMobile ? "11px" : "14px",
+                    }}
+                  />
+                  // Leyenda que muestra todas las categorías con porcentajes completos
+                  <Legend
+                    verticalAlign="bottom"
+                    height={isMobile ? 120 : 150}
+                    wrapperStyle={{
+                      paddingTop: "20px",
+                      fontSize: isMobile ? "9px" : "11px",
+                      maxHeight: isMobile ? "120px" : "150px",
+                      overflowY: "auto",
+                    }}
+                    formatter={(value, entry: any) => {
+                      const porcentaje = entry.payload?.porcentaje ?? 0
+                      return `${value} (${porcentaje.toFixed(1)}%)`
+                    }}
+                  />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+
+          {tipoGrafico === "lineal" && (
+            <div className="w-full" style={{ height: isMobile ? "450px" : "550px" }}>
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={datosGrafico} margin={lineChartMargin}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis
+                    dataKey="name"
+                    angle={-45}
+                    textAnchor="end"
+                    height={isMobile ? 120 : 140}
+                    fontSize={isMobile ? 8 : 11}
+                    tick={{ fill: "#4b5563" }}
+                    interval={0}
+                  />
+                  <YAxis fontSize={isMobile ? 10 : 12} tick={{ fill: "#4b5563" }} width={isMobile ? 35 : 60} />
+                  <Tooltip
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "6px",
+                      fontSize: isMobile ? "11px" : "14px",
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: isMobile ? "10px" : "12px" }} iconSize={isMobile ? 10 : 14} />
+                  {respuestasKeys.map((key, index) => (
+                    <Line
+                      key={key}
+                      type="monotone"
+                      dataKey={`respuestas.${key}`}
+                      stroke={COLORS[index % COLORS.length].border}
+                      strokeWidth={isMobile ? 2 : 3}
+                      dot={{
+                        fill: COLORS[index % COLORS.length].bg,
+                        stroke: "#fff",
+                        strokeWidth: 2,
+                        r: isMobile ? 4 : 5,
+                      }}
+                      name={key}
+                    />
+                  ))}
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="tabla" className="w-full overflow-x-auto">
+          // Diseño responsivo: tabla en desktop, tarjetas en móvil
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-[40%] text-xs lg:text-sm">Pregunta</TableHead>
+                  {respuestasKeys.map((key) => (
+                    <TableHead key={key} className="text-center text-xs lg:text-sm">
+                      {key}
+                    </TableHead>
+                  ))}
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {datosTabla.map((item, index) => (
+                  <TableRow key={index}>
+                    <TableCell className="font-medium text-xs lg:text-sm">{item.pregunta}</TableCell>
+                    {respuestasKeys.map((key) => (
+                      <TableCell key={key} className="text-center text-xs lg:text-sm">
+                        {item.respuestas[key] || 0}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+          <div className="md:hidden space-y-4">
+            {datosTabla.map((item, index) => (
+              <Card key={index} className="p-4 border border-border">
+                <h4 className="font-bold text-sm text-foreground mb-3">{item.pregunta}</h4>
+                <div className="space-y-2">
+                  {respuestasKeys.map((key) => (
+                    <div
+                      key={key}
+                      className="flex justify-between items-center py-1 border-b border-border/50 last:border-0"
+                    >
+                      <span className="text-xs text-foreground/70">{key}</span>
+                      <span className="text-xs font-semibold text-foreground">{item.respuestas[key] || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
+    </Card>
+  )
+}
+
 export function ComportamientoGraficos({ datos }: GraficosProps) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
   const [seccionSeleccionada, setSeccionSeleccionada] = useState<string>("distribucion-demografica")

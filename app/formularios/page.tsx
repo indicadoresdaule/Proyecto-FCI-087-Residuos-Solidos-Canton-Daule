@@ -43,7 +43,7 @@ export default function FormulariosPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
-              <div className="bg-white dark:bg-card rounded-xl p-5 sm:p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-card rounded-xl p-5 sm:p-6 border border-border shadow-sm transition-shadow">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent-lighter flex items-center justify-center mb-4">
                   <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6 text-accent" />
                 </div>
@@ -54,7 +54,7 @@ export default function FormulariosPage() {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-card rounded-xl p-5 sm:p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-card rounded-xl p-5 sm:p-6 border border-border shadow-sm transition-shadow">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-primary-lighter flex items-center justify-center mb-4">
                   <RefreshCw className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                 </div>
@@ -65,7 +65,7 @@ export default function FormulariosPage() {
                 </p>
               </div>
 
-              <div className="bg-white dark:bg-card rounded-xl p-5 sm:p-6 border border-border shadow-sm hover:shadow-md transition-shadow">
+              <div className="bg-white dark:bg-card rounded-xl p-5 sm:p-6 border border-border shadow-sm transition-shadow">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-accent3-lighter flex items-center justify-center mb-4">
                   <CheckCircle2 className="w-5 h-5 sm:w-6 sm:h-6 text-accent3" />
                 </div>

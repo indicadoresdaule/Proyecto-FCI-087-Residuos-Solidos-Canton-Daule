@@ -129,7 +129,7 @@ const SECCIONES = {
       "problema-comunidad": {
         nombre: "¿Los desechos son un gran problema?",
         campo: "desechos_solidos_problema_comunidad",
-        valores: ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalmente de acuerdo"],
+        valores: ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalfully de acuerdo"],
       },
     },
   },
@@ -449,14 +449,14 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       if (!esMovil && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={esMovil ? 80 : 160}
-                    innerRadius={esMovil ? 40 : 80}
+                    outerRadius={esMovil ? 70 : 160}
+                    innerRadius={esMovil ? 35 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: esMovil ? 85 : 170,
+                      outerRadius: esMovil ? 75 : 170,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}
@@ -481,16 +481,13 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={esMovil ? 160 : 150}
+                    height={esMovil ? 180 : 150}
                     wrapperStyle={{
                       paddingTop: esMovil ? "10px" : "20px",
                       fontSize: esMovil ? "8px" : "11px",
-                      maxHeight: esMovil ? "160px" : "150px",
+                      maxHeight: esMovil ? "180px" : "150px",
                       overflowY: "auto",
-                      lineHeight: "1.2",
                     }}
-                    layout={esMovil ? "vertical" : "horizontal"}
-                    align={esMovil ? "left" : "center"}
                     formatter={(value, entry: any) => {
                       const porcentaje = entry.payload?.porcentaje ?? 0
                       return `${value} (${porcentaje.toFixed(1)}%)`
@@ -922,7 +919,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 </div>
               </div>
 
-              <div className="w-full" style={{ height: esMovil ? "450px" : "500px" }}>
+              <div className="w-full" style={{ height: esMovil ? "500px" : "500px" }}>
                 {tipoGrafico === "barras" && (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={datosGrafico} margin={margenBarras}>
@@ -994,14 +991,14 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             if (!esMovil && porcentaje < 2) return ""
                             return `${porcentaje.toFixed(1)}%`
                           }}
-                          outerRadius={esMovil ? 80 : 160}
-                          innerRadius={esMovil ? 40 : 80}
+                          outerRadius={esMovil ? 70 : 160}
+                          innerRadius={esMovil ? 35 : 80}
                           fill="#8884d8"
                           dataKey="value"
                           paddingAngle={2}
                           activeIndex={undefined}
                           activeShape={{
-                            outerRadius: esMovil ? 85 : 170,
+                            outerRadius: esMovil ? 75 : 170,
                             stroke: "#fff",
                             strokeWidth: 3,
                           }}
@@ -1026,16 +1023,13 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                         />
                         <Legend
                           verticalAlign="bottom"
-                          height={esMovil ? 160 : 150}
+                          height={esMovil ? 180 : 150}
                           wrapperStyle={{
                             paddingTop: esMovil ? "10px" : "20px",
                             fontSize: esMovil ? "8px" : "11px",
-                            maxHeight: esMovil ? "160px" : "150px",
+                            maxHeight: esMovil ? "180px" : "150px",
                             overflowY: "auto",
-                            lineHeight: "1.2",
                           }}
-                          layout={esMovil ? "vertical" : "horizontal"}
-                          align={esMovil ? "left" : "center"}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
                             return `${value} (${porcentaje.toFixed(1)}%)`
@@ -1154,22 +1148,22 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 {seccionKey !== "distribucion-demografica" && tablasLikert && tablasLikert.length > 0 && (
                   <div className="space-y-6 sm:space-y-8">
                     <div className="w-full">
-                      {/* Versión Desktop */}
-                      <div className="hidden lg:block overflow-x-auto">
+                      {/* Versión Desktop: Tabla tradicional */}
+                      <div className="hidden lg:block">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="font-bold text-sm">Pregunta</TableHead>
-                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">
+                              <TableHead className="font-bold">Pregunta</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">
                                 Totalmente Desacuerdo
                               </TableHead>
-                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">Desacuerdo</TableHead>
-                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">Indiferente</TableHead>
-                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">De Acuerdo</TableHead>
-                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">
+                              <TableHead className="font-bold text-center whitespace-nowrap">Desacuerdo</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">Indiferente</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">De Acuerdo</TableHead>
+                              <TableHead className="font-bold text-center whitespace-nowrap">
                                 Totalmente Acuerdo
                               </TableHead>
-                              <TableHead className="font-bold text-center bg-muted text-sm whitespace-nowrap">
+                              <TableHead className="font-bold text-center bg-muted whitespace-nowrap">
                                 Promedio
                               </TableHead>
                             </TableRow>
@@ -1214,14 +1208,73 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                 </TableCell>
                               </TableRow>
                             ))}
+                            <TableRow className="bg-muted/70">
+                              <TableCell className="font-bold text-sm py-3">Promedio General</TableCell>
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center font-bold text-sm py-3">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableCell>
+                              <TableCell className="text-center bg-muted font-bold text-sm py-3">
+                                {tablasLikert.length > 0
+                                  ? (
+                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </TableHead>
+                            </TableRow>
                           </TableBody>
                         </Table>
                       </div>
 
-                      {/* Versión Mobile */}
-                      <div className="lg:hidden space-y-4">
+                      <div className="lg:hidden space-y-6">
                         {tablasLikert.map((tabla, idx) => (
-                          <Card key={idx} className="p-4 border border-border">
+                          <div key={idx} className="border rounded-lg p-4 bg-card">
                             <h5 className="font-semibold text-sm mb-4 text-foreground leading-tight">
                               {tabla.pregunta}
                             </h5>
@@ -1275,8 +1328,90 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                 <span className="text-sm font-bold">{tabla.promedio.toFixed(1)}%</span>
                               </div>
                             </div>
-                          </Card>
+                          </div>
                         ))}
+
+                        {/* Promedio General en mobile */}
+                        <div className="border rounded-lg p-4 bg-muted/70">
+                          <h5 className="font-bold text-sm mb-4">Promedio General</h5>
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Totalmente Desacuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Desacuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Indiferente</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">De Acuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div>
+                              <span className="text-muted-foreground block mb-1">Totalmente Acuerdo</span>
+                              <span className="font-semibold">
+                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
+                                  ? (
+                                      tablasLikert.reduce(
+                                        (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
+                                        0,
+                                      ) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                            <div className="col-span-2 mt-2 pt-2 border-t">
+                              <span className="text-muted-foreground block mb-1">Promedio Total</span>
+                              <span className="font-bold text-base">
+                                {tablasLikert.length > 0
+                                  ? (
+                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
+                                    ).toFixed(1) + "%"
+                                  : "0.0%"}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>

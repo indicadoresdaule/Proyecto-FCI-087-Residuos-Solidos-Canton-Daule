@@ -541,7 +541,6 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
           )}
 
           {tipoGrafico === "torta" && (
-            // Reduciendo altura del gráfico de pie en móvil de 500px a 400px
             <div className="w-full" style={{ height: isMobile ? "400px" : "600px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
@@ -556,14 +555,14 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       if (!isMobile && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={isMobile ? 75 : 160}
-                    innerRadius={isMobile ? 38 : 80}
+                    outerRadius={isMobile ? 80 : 160}
+                    innerRadius={isMobile ? 40 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: isMobile ? 80 : 170,
+                      outerRadius: isMobile ? 85 : 170,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}
@@ -588,11 +587,11 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={isMobile ? 100 : 150}
+                    height={isMobile ? 120 : 150}
                     wrapperStyle={{
                       paddingTop: "20px",
                       fontSize: isMobile ? "9px" : "11px",
-                      maxHeight: isMobile ? "100px" : "150px",
+                      maxHeight: isMobile ? "120px" : "150px",
                       overflowY: "auto",
                     }}
                     formatter={(value, entry: any) => {
@@ -652,7 +651,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
         </TabsContent>
 
         <TabsContent value="tabla" className="w-full overflow-x-auto">
-          {/* Diseño responsivo: tabla en desktop, tarjetas en móvil */}
+          // Diseño responsivo: tabla en desktop, tarjetas en móvil
           <div className="hidden md:block">
             <Table>
               <TableHeader>

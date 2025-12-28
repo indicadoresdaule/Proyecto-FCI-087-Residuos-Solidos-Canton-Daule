@@ -21,7 +21,7 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown } from "lucide-react"
+import { Users, Home, GraduationCap, Briefcase } from "lucide-react"
 
 interface GraficosProps {
   datos: any[]
@@ -306,25 +306,28 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
-// Función para formatear porcentaje: dos decimales si es decimal, ninguno si es entero
+// Función para formatear porcentajes correctamente
 const formatearPorcentaje = (valor: number): string => {
-  const redondeado = Math.round(valor * 100) / 100 // Redondear a 2 decimales
-  const esEntero = Math.abs(redondeado - Math.round(redondeado)) < 0.001
+  // Redondear a 2 decimales primero
+  const redondeado = Math.round(valor * 100) / 100
   
-  if (esEntero) {
-    return `${Math.round(redondeado)}%`
+  // Verificar si es un número entero
+  if (Number.isInteger(redondeado)) {
+    return `${redondeado}%`
   }
+  
+  // Si tiene decimales, mostrar con 2 decimales
   return `${redondeado.toFixed(2)}%`
 }
 
-// Función para formatear porcentaje con 1 decimal para gráficos (cuando se usa toFixed(1))
+// Función para formatear porcentajes en gráficos (1 decimal para gráficos)
 const formatearPorcentajeGrafico = (valor: number): string => {
-  const redondeado = Math.round(valor * 10) / 10 // Redondear a 1 decimal
-  const esEntero = Math.abs(redondeado - Math.round(redondeado)) < 0.01
+  const redondeado = Math.round(valor * 10) / 10
   
-  if (esEntero) {
-    return `${Math.round(redondeado)}%`
+  if (Number.isInteger(redondeado)) {
+    return `${redondeado}%`
   }
+  
   return `${redondeado.toFixed(1)}%`
 }
 
@@ -364,7 +367,7 @@ const PREGUNTAS_LIKERT: Record<string, string> = {
     "¿La falta de información es un obstáculo para la correcta gestión de los residuos sólidos domiciliario?",
   // Sustentabilidad Ambiental
   desechos_organicos_funcionalidad: "¿Los desechos orgánicos generados en el hogar pueden tener otra funcionalidad?",
-  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de de la población?",
+  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de la población?",
   reduccion_reciclaje_reutilizacion_cuida_ambiente:
     "¿La reducción, reciclaje y la reutilización de los desechos sólidos puede cuidar al medio ambiente y a la vida silvestre?",
   transformacion_desechos_nuevos_productos:
@@ -604,7 +607,10 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                     ))}
                   </Pie>
                   <Tooltip
-                    formatter={(value) => `${value} respuestas`}
+                    formatter={(value, name, props) => {
+                      const porcentaje = props.payload?.porcentaje ?? 0
+                      return [`${value} respuestas`, `(${formatearPorcentaje(porcentaje)})`]
+                    }}
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
@@ -623,7 +629,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                     }}
                     formatter={(value, entry: any) => {
                       const porcentaje = entry.payload?.porcentaje ?? 0
-                      return `${value} (${formatearPorcentajeGrafico(porcentaje)})`
+                      return `${value} (${formatearPorcentaje(porcentaje)})`
                     }}
                   />
                 </PieChart>
@@ -937,8 +943,120 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
     return preguntaCompleta
   }
 
+  // Calcular datos para las tarjetas de resumen
+  const calcularResumenDemografico = () => {
+    const totalEncuestas = datos.length
+    
+    // Tipo de Hogar Predominante
+    const tiposHogar: Record<string, number> = {}
+    datos.forEach((registro) => {
+      const tipo = registro.tipo_hogar
+      if (tipo) {
+        tiposHogar[tipo] = (tiposHogar[tipo] || 0) + 1
+      }
+    })
+    const tipoHogarPredominante = Object.entries(tiposHogar).sort((a, b) => b[1] - a[1])[0] || ["No definido", 0]
+    
+    // Educación Predominante
+    const nivelesEducacion: Record<string, number> = {}
+    datos.forEach((registro) => {
+      const nivel = registro.educacion_jefe_hogar
+      if (nivel) {
+        nivelesEducacion[nivel] = (nivelesEducacion[nivel] || 0) + 1
+      }
+    })
+    const educacionPredominante = Object.entries(nivelesEducacion).sort((a, b) => b[1] - a[1])[0] || ["No definido", 0]
+    
+    // Situación Laboral Predominante
+    const situacionesLaborales: Record<string, number> = {}
+    datos.forEach((registro) => {
+      const situacion = registro.situacion_laboral_jefe_hogar
+      if (situacion) {
+        situacionesLaborales[situacion] = (situacionesLaborales[situacion] || 0) + 1
+      }
+    })
+    const situacionLaboralPredominante = Object.entries(situacionesLaborales).sort((a, b) => b[1] - a[1])[0] || ["No definido", 0]
+    
+    return {
+      totalEncuestas,
+      tipoHogarPredominante,
+      educacionPredominante,
+      situacionLaboralPredominante
+    }
+  }
+
+  const resumenDemografico = calcularResumenDemografico()
+
   return (
     <div className="space-y-8">
+      {/* Tarjetas de resumen solo para Distribución Demográfica */}
+      {seccionSeleccionada === "distribucion-demografica" && (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <Card className="p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-primary/10 rounded-lg">
+                <Users className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Total Encuestas</p>
+                <h3 className="text-2xl font-bold">{resumenDemografico.totalEncuestas}</h3>
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-blue-500/10 rounded-lg">
+                <Home className="h-5 w-5 text-blue-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Tipo de Hogar Predominante</p>
+                <h3 className="text-xl font-bold">{resumenDemografico.tipoHogarPredominante[0]}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {resumenDemografico.tipoHogarPredominante[1]} encuestas (
+                  {formatearPorcentaje((resumenDemografico.tipoHogarPredominante[1] / resumenDemografico.totalEncuestas) * 100)}
+                  )
+                </p>
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-green-500/10 rounded-lg">
+                <GraduationCap className="h-5 w-5 text-green-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Educación Predominante</p>
+                <h3 className="text-xl font-bold">{resumenDemografico.educacionPredominante[0]}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {resumenDemografico.educacionPredominante[1]} encuestas (
+                  {formatearPorcentaje((resumenDemografico.educacionPredominante[1] / resumenDemografico.totalEncuestas) * 100)}
+                  )
+                </p>
+              </div>
+            </div>
+          </Card>
+          
+          <Card className="p-4 border border-border">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-500/10 rounded-lg">
+                <Briefcase className="h-5 w-5 text-amber-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">Situación Laboral Predominante</p>
+                <h3 className="text-xl font-bold">{resumenDemografico.situacionLaboralPredominante[0]}</h3>
+                <p className="text-sm text-muted-foreground">
+                  {resumenDemografico.situacionLaboralPredominante[1]} encuestas (
+                  {formatearPorcentaje((resumenDemografico.situacionLaboralPredominante[1] / resumenDemografico.totalEncuestas) * 100)}
+                  )
+                </p>
+              </div>
+            </div>
+          </Card>
+        </div>
+      )}
+
       <Tabs
         value={seccionSeleccionada}
         onValueChange={(value) => {
@@ -1046,7 +1164,10 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                       />
                       <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
                       <Tooltip
-                        formatter={(value) => `${value} respuestas`}
+                        formatter={(value, name, props) => {
+                          const porcentaje = props.payload?.porcentaje ?? 0
+                          return [`${value} respuestas`, `(${formatearPorcentaje(porcentaje)})`]
+                        }}
                         contentStyle={{
                           backgroundColor: "#fff",
                           border: "1px solid #e5e7eb",
@@ -1124,7 +1245,10 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                           ))}
                         </Pie>
                         <Tooltip
-                          formatter={(value) => `${value} respuestas`}
+                          formatter={(value, name, props) => {
+                            const porcentaje = props.payload?.porcentaje ?? 0
+                            return [`${value} respuestas`, `(${formatearPorcentaje(porcentaje)})`]
+                          }}
                           contentStyle={{
                             backgroundColor: "#fff",
                             border: "1px solid #e5e7eb",
@@ -1143,7 +1267,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                           }}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
-                            return `${value} (${formatearPorcentajeGrafico(porcentaje)})`
+                            return `${value} (${formatearPorcentaje(porcentaje)})`
                           }}
                         />
                       </PieChart>
@@ -1166,7 +1290,10 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                       />
                       <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
                       <Tooltip
-                        formatter={(value) => `${value} respuestas`}
+                        formatter={(value, name, props) => {
+                          const porcentaje = props.payload?.porcentaje ?? 0
+                          return [`${value} respuestas`, `(${formatearPorcentaje(porcentaje)})`]
+                        }}
                         contentStyle={{
                           backgroundColor: "#fff",
                           border: "1px solid #e5e7eb",

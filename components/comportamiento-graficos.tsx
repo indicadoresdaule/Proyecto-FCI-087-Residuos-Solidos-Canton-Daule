@@ -306,10 +306,16 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
-// Función para calcular porcentaje con una decimal
-const calcularPorcentaje = (valor: number, total: number): string => {
-  if (total === 0) return "0.0%"
-  return ((valor / total) * 100).toFixed(1) + "%"
+// Función para formatear porcentajes: muestra 1 decimal solo si es necesario
+const formatearPorcentaje = (valor: number): string => {
+  const redondeado = Math.round(valor * 10) / 10 // Redondear a 1 decimal
+  const esEntero = Math.abs(redondeado - Math.round(redondeado)) < 0.0001
+  
+  if (esEntero) {
+    return Math.round(redondeado).toFixed(0) + "%"
+  } else {
+    return redondeado.toFixed(1) + "%"
+  }
 }
 
 // Mapeo de nombres de campos a preguntas legibles COMPLETAS
@@ -403,7 +409,7 @@ const generarTablaLikertPorSeccion = (datos: any[], seccionSeleccionada: string)
       }
     })
 
-    // Calcular promedio ponderado con una decimal
+    // Calcular promedio ponderado
     const suma =
       conteos["Totalmente desacuerdo"] * 1 +
       conteos["Desacuerdo"] * 2 +
@@ -527,7 +533,6 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   />
                   <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : 60} />
                   <Tooltip
-                    formatter={(value) => `${value} respuestas`}
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
@@ -565,7 +570,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       const porcentaje = entry.porcentaje ?? 0
                       if (esMovil && porcentaje < 5) return ""
                       if (!esMovil && porcentaje < 2) return ""
-                      return `${porcentaje.toFixed(1)}%`
+                      return formatearPorcentaje(porcentaje)
                     }}
                     outerRadius={esMovil ? 70 : 160}
                     innerRadius={esMovil ? 35 : 80}
@@ -608,7 +613,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                     }}
                     formatter={(value, entry: any) => {
                       const porcentaje = entry.payload?.porcentaje ?? 0
-                      return `${value} (${porcentaje.toFixed(1)}%)`
+                      return `${value} (${formatearPorcentaje(porcentaje)})`
                     }}
                   />
                 </PieChart>
@@ -1053,7 +1058,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               fontSize={esMovil ? 9 : 12}
                               fontWeight="bold"
                             >
-                              {`${porcentaje.toFixed(1)}%`}
+                              {formatearPorcentaje(porcentaje)}
                             </text>
                           )
                         }}
@@ -1085,7 +1090,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             const porcentaje = entry.porcentaje ?? 0
                             if (esMovil && porcentaje < 5) return ""
                             if (!esMovil && porcentaje < 2) return ""
-                            return `${porcentaje.toFixed(1)}%`
+                            return formatearPorcentaje(porcentaje)
                           }}
                           outerRadius={esMovil ? 70 : 160}
                           innerRadius={esMovil ? 35 : 80}
@@ -1128,7 +1133,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                           }}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
-                            return `${value} (${porcentaje.toFixed(1)}%)`
+                            return `${value} (${formatearPorcentaje(porcentaje)})`
                           }}
                         />
                       </PieChart>
@@ -1184,7 +1189,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                 fontWeight="600"
                                 fill="#1f2937"
                               >
-                                {`${payload.porcentaje.toFixed(1)}%`}
+                                {formatearPorcentaje(payload.porcentaje)}
                               </text>
                             </g>
                           )
@@ -1224,16 +1229,14 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                   <TableCell className="font-medium text-xs sm:text-sm">{fila.name}</TableCell>
                                   <TableCell className="text-right text-xs sm:text-sm">{fila.value}</TableCell>
                                   <TableCell className="text-right text-xs sm:text-sm">
-                                    {calcularPorcentaje(fila.value, tabla.total)}
+                                    {formatearPorcentaje(fila.porcentaje)}
                                   </TableCell>
                                 </TableRow>
                               ))}
                               <TableRow className="bg-muted/50 font-bold">
                                 <TableCell className="text-xs sm:text-sm">Total</TableCell>
                                 <TableCell className="text-right text-xs sm:text-sm">{tabla.total}</TableCell>
-                                <TableCell className="text-right text-xs sm:text-sm">
-                                  {calcularPorcentaje(tabla.total, tabla.total)}
-                                </TableCell>
+                                <TableCell className="text-right text-xs sm:text-sm">100%</TableCell>
                               </TableRow>
                             </TableBody>
                           </Table>
@@ -1273,22 +1276,32 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                   {tabla.pregunta}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {calcularPorcentaje(tabla.conteos["Totalmente desacuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {calcularPorcentaje(tabla.conteos["Desacuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {calcularPorcentaje(tabla.conteos["Indiferente"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {calcularPorcentaje(tabla.conteos["De acuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </TableCell>
                                 <TableCell className="text-center text-sm py-3">
-                                  {calcularPorcentaje(tabla.conteos["Totalmente de acuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </TableCell>
                                 <TableCell className="text-center bg-muted font-bold text-sm py-3">
-                                  {tabla.promedio.toFixed(1)}%
+                                  {formatearPorcentaje(tabla.promedio)}
                                 </TableCell>
                               </TableRow>
                             ))}
@@ -1296,60 +1309,58 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               <TableCell className="font-bold text-sm py-3">Promedio General</TableCell>
                               <TableCell className="text-center font-bold text-sm py-3">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </TableCell>
                               <TableCell className="text-center font-bold text-sm py-3">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </TableCell>
                               <TableCell className="text-center font-bold text-sm py-3">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </TableCell>
                               <TableCell className="text-center font-bold text-sm py-3">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </TableCell>
                               <TableCell className="text-center font-bold text-sm py-3">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </TableCell>
                               <TableCell className="text-center bg-muted font-bold text-sm py-3">
                                 {tablasLikert.length > 0
-                                  ? (
-                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                  ? formatearPorcentaje(tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length)
+                                  : "0%"}
                               </TableCell>
                             </TableRow>
                           </TableBody>
@@ -1366,36 +1377,46 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Totalmente Desacuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {calcularPorcentaje(tabla.conteos["Totalmente desacuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Totalmente desacuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Desacuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {calcularPorcentaje(tabla.conteos["Desacuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Desacuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Indiferente</span>
                                 <span className="text-sm font-semibold">
-                                  {calcularPorcentaje(tabla.conteos["Indiferente"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Indiferente"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">De Acuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {calcularPorcentaje(tabla.conteos["De acuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["De acuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 border-b">
                                 <span className="text-xs font-medium text-muted-foreground">Totalmente Acuerdo</span>
                                 <span className="text-sm font-semibold">
-                                  {calcularPorcentaje(tabla.conteos["Totalmente de acuerdo"], tabla.totalEncuestas)}
+                                  {tabla.totalEncuestas > 0
+                                    ? formatearPorcentaje((tabla.conteos["Totalmente de acuerdo"] / tabla.totalEncuestas) * 100)
+                                    : "0%"}
                                 </span>
                               </div>
                               <div className="flex justify-between items-center py-2 bg-muted rounded px-3 mt-2">
                                 <span className="text-xs font-bold">Promedio</span>
-                                <span className="text-sm font-bold">{tabla.promedio.toFixed(1)}%</span>
+                                <span className="text-sm font-bold">{formatearPorcentaje(tabla.promedio)}</span>
                               </div>
                             </div>
                           </div>
@@ -1409,75 +1430,73 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               <span className="text-muted-foreground block mb-1">Totalmente Desacuerdo</span>
                               <span className="font-semibold">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </span>
                             </div>
                             <div>
                               <span className="text-muted-foreground block mb-1">Desacuerdo</span>
                               <span className="font-semibold">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </span>
                             </div>
                             <div>
                               <span className="text-muted-foreground block mb-1">Indiferente</span>
                               <span className="font-semibold">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </span>
                             </div>
                             <div>
                               <span className="text-muted-foreground block mb-1">De Acuerdo</span>
                               <span className="font-semibold">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </span>
                             </div>
                             <div>
                               <span className="text-muted-foreground block mb-1">Totalmente Acuerdo</span>
                               <span className="font-semibold">
                                 {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
+                                  ? formatearPorcentaje(
                                       tablasLikert.reduce(
                                         (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
                                         0,
                                       ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                    )
+                                  : "0%"}
                               </span>
                             </div>
                             <div className="col-span-2 mt-2 pt-2 border-t">
                               <span className="text-muted-foreground block mb-1">Promedio Total</span>
                               <span className="font-bold text-base">
                                 {tablasLikert.length > 0
-                                  ? (
-                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
+                                  ? formatearPorcentaje(tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length)
+                                  : "0%"}
                               </span>
                             </div>
                           </div>

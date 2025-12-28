@@ -555,14 +555,14 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       if (!isMobile && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={isMobile ? 70 : 160}
-                    innerRadius={isMobile ? 35 : 80}
+                    outerRadius={isMobile ? 65 : 160}
+                    innerRadius={isMobile ? 50 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: isMobile ? 75 : 170,
+                      outerRadius: isMobile ? 70 : 170,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}

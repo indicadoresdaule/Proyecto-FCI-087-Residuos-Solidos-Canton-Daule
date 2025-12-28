@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import {
   BarChart,
   Bar,
@@ -289,7 +289,6 @@ const normalizarValorLikert = (valor: string): string => {
   if (!valor) return ""
   const valorLimpio = valor.trim()
 
-  // Mapear variaciones a valores estándar (coincidir con datos reales)
   if (valorLimpio === "Totalmente de acuerdo") return "Totalmente de acuerdo"
   if (valorLimpio === "De acuerdo") return "De acuerdo"
   if (valorLimpio === "Indiferente") return "Indiferente"
@@ -299,140 +298,35 @@ const normalizarValorLikert = (valor: string): string => {
   return valorLimpio
 }
 
-const generarTablaLikertPorSeccion = (datos: any[], seccionSeleccionada: string) => {
-  const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
-  if (!seccion || seccionSeleccionada === "distribucion-demografica") return null
-
-  const totalEncuestas = datos.length
-
-  return Object.entries(seccion.grupos).map(([key, grupo]) => {
-    const opcionesLikert = ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalmente de acuerdo"]
-
-    // CONTARA: contar cuántas veces aparece cada opción
-    const conteos: Record<string, number> = {}
-    opcionesLikert.forEach((opcion) => {
-      conteos[opcion] = 0
-    })
-
-    datos.forEach((registro) => {
-      const valor = registro[grupo.campo]
-      if (valor && typeof valor === "string") {
-        const valorNorm = normalizarValorLikert(valor)
-        if (opcionesLikert.includes(valorNorm)) {
-          conteos[valorNorm]++
-        }
-      }
-    })
-
-    // Calcular promedio ponderado
-    const suma =
-      conteos["Totalmente desacuerdo"] * 1 +
-      conteos["Desacuerdo"] * 2 +
-      conteos["Indiferente"] * 3 +
-      conteos["De acuerdo"] * 4 +
-      conteos["Totalmente de acuerdo"] * 5
-    const promedio = totalEncuestas > 0 ? (suma / totalEncuestas / 5) * 100 : 0
-
-    return {
-      nombreGrupo: grupo.nombre,
-      pregunta: PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre,
-      conteos,
-      totalEncuestas,
-      promedio,
-    }
-  })
-}
-
-// Mapeo de nombres de campos a preguntas legibles
-const PREGUNTAS_LIKERT: Record<string, string> = {
-  // Determinantes Socioculturales
-  conoce_desechos_solidos: "¿Conoce usted qué son los desechos sólidos domiciliarios?",
-  cree_comportamiento_adecuado_manejo:
-    "¿Cree usted que existe un comportamiento adecuado en el manejo de los desechos sólidos domiciliarios en la comunidad?",
-  separar_desechos_por_origen:
-    "¿Se debe separar los desechos sólidos según su tipo ejemplo: (papel - plástico - orgánico - inorgánico)?",
-  clasificacion_correcta_desechos:
-    "¿Es importante la correcta clasificación de los desechos sólidos orgánicos e inorgánicos en el hogar?",
-  comportamiento_comunidad_influye:
-    "¿Cree que el comportamiento de la comunidad influye en deterioro del medio ambiente?",
-  dedica_tiempo_reutilizar_reciclar:
-    "¿Dedica tiempo para reducir, reutilizar y/o reciclar los desechos sólidos que se generan en el hogar?",
-  desechos_solidos_problema_comunidad: "¿Los desechos sólidos son un gran problema para la comunidad?",
-  // Determinantes Afectivos
-  preocupa_exceso_desechos: "¿Le preocupa el exceso de desechos sólidos domiciliarios?",
-  desechos_contaminan_ambiente:
-    "¿Considera que los desechos sólidos domiciliarios intervienen en las consecuencias climáticas?",
-  afecta_emocionalmente_noticias_contaminacion:
-    "¿Le afecta emocionalmente cuando escucha noticias acerca de los desastres naturales?",
-  frustracion_falta_acciones_ambientales:
-    "¿Siente frustración debido a la falta de acciones significativas para abordar la generación de los desechos sólidos?",
-  importancia_planeta_futuras_generaciones:
-    "¿Considera importante pensar en el tipo de planeta que dejaremos a las futuras generaciones?",
-  // Determinantes Cognitivos
-  consciente_impacto_desechos_salud:
-    "¿Es consciente del impacto de los desechos sólidos domiciliarios en el medio ambiente?",
-  investiga_temas_ambientales: "¿Investiga frecuentemente acerca de temas medio ambientales?",
-  consecuencias_acumulacion_desechos:
-    "¿Conoce las consecuencias de la acumulación de los desechos sólidos domiciliarios?",
-  beneficios_reutilizar_residuo: "¿Conoce los beneficios de reutilizar un residuo domiciliario?",
-  falta_informacion_obstaculo_gestion:
-    "¿La falta de información es un obstáculo para la correcta gestión de los residuos sólidos domiciliario?",
-  // Sustentabilidad Ambiental
-  desechos_organicos_funcionalidad: "¿Los desechos orgánicos generados en el hogar pueden tener otra funcionalidad?",
-  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de la población?",
-  reduccion_reciclaje_reutilizacion_cuida_ambiente:
-    "¿La reducción, reciclaje y la reutilización de los desechos sólidos puede cuidar al medio ambiente y a la vida silvestre?",
-  transformacion_desechos_nuevos_productos:
-    "¿Cree que la transformación de desechos sólidos en nuevos productos puede contribuir significativamente a la reducción de la generación de desechos?",
-  necesita_info_educacion_ambiental: "¿Necesita más información acerca de educación ambiental?",
-  // Sustentabilidad Económica
-  practica_separacion_reciclaje_ingreso:
-    "¿En su hogar practica la separación de los desechos para el reciclaje y le representa algún ingreso?",
-  desechos_hogar_reutilizados:
-    "¿Los desechos sólidos generados en el hogar pueden ser reutilizados para una nueva función o creación de un producto?",
-  manejo_adecuado_desechos_aporta_desarrollo:
-    "¿Cree que el manejo adecuado de los desechos sólidos domiciliarios podría aportar al desarrollo económico comunitario?",
-  emprendimientos_reutilizacion_aportan_economia:
-    "¿Los emprendimientos en base a la reutilización de los desechos aporta a su economía?",
-  manejo_adecuado_desechos_oportunidad_emprendimiento:
-    "¿El manejo adecuado de los desechos sólidos domiciliarios ofrece oportunidades para el emprendimiento?",
-  // Desarrollo Comunitario
-  reducir_residuos_eventos_concientizacion:
-    "¿Es posible reducir la generación de residuos sólidos domiciliarios por medio de eventos de concientización?",
-  participaria_talleres_buenas_practicas:
-    "¿Participaría en talleres de buenas prácticas y capacitaciones para el correcto manejo de los desechos sólidos domiciliarios?",
-  manejo_adecuado_desechos_impacto_ambiente:
-    "¿El manejo adecuado de los desechos sólidos domiciliarios puede tener un impacto significativo al medio ambiente?",
-  dispuesto_participar_emprendimiento_desechos:
-    "¿Está dispuesto a participar en un emprendimiento en base al uso de los desechos sólidos?",
-  participaria_feria_emprendimientos_desechos:
-    "¿Participaría a una feria de emprendimientos comunitarios en base a desechos domiciliarios reutilizados?",
+const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
+  if (esMovil) return 30
+  const maxValor = Math.max(...datos.map((d) => d.value))
+  const maxDigitos = maxValor.toFixed(0).length
+  return Math.max(50, maxDigitos * 8 + 20)
 }
 
 function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string }) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
-  const [isMobile, setIsMobile] = useState(false)
+  const [esMovil, setEsMovil] = useState(false)
 
-  useState(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
+  useEffect(() => {
+    const verificarMovil = () => {
+      setEsMovil(window.innerWidth < 768)
     }
-    checkMobile()
-    window.addEventListener("resize", checkMobile)
-    return () => window.removeEventListener("resize", checkMobile)
-  })
+    verificarMovil()
+    window.addEventListener("resize", verificarMovil)
+    return () => window.removeEventListener("resize", verificarMovil)
+  }, [])
 
   const datosSeccion = datos.filter((item) => item.seccion === seccion)
-
   const datosGrafico = datosSeccion.map((item) => ({
     name: item.pregunta,
     ...item.respuestas,
     respuestas: item.respuestas,
   }))
-
   const respuestasKeys = datosSeccion.length > 0 ? Object.keys(datosSeccion[0].respuestas) : []
 
-  const datosGraficoPie = respuestasKeys.map((key) => ({
+  const datosGraficoTorta = respuestasKeys.map((key) => ({
     name: key,
     value: datosSeccion.reduce((acc, item) => acc + (item.respuestas[key] || 0), 0),
     porcentaje:
@@ -449,13 +343,13 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
     respuestas: item.respuestas,
   }))
 
-  const barChartMargin = isMobile
-    ? { top: 20, right: 5, left: 10, bottom: 100 }
-    : { top: 30, right: 30, left: 80, bottom: 120 }
-
-  const lineChartMargin = isMobile
-    ? { top: 20, right: 5, left: 15, bottom: 100 }
-    : { top: 30, right: 30, left: 80, bottom: 120 }
+  const anchoEjeY = calcularAnchoEjeY(datosGraficoTorta, esMovil)
+  const margenBarras = esMovil
+    ? { top: 20, right: 5, left: 10, bottom: 80 }
+    : { top: 30, right: 30, left: anchoEjeY, bottom: 100 }
+  const margenLineal = esMovil
+    ? { top: 20, right: 5, left: 15, bottom: 80 }
+    : { top: 30, right: 30, left: anchoEjeY + 80, bottom: 100 }
 
   return (
     <Card className="p-3 sm:p-4 md:p-6 border border-border">
@@ -501,29 +395,29 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
 
         <TabsContent value="graficos" className="w-full overflow-hidden">
           {tipoGrafico === "barras" && (
-            <div className="w-full" style={{ height: isMobile ? "450px" : "550px" }}>
+            <div className="w-full" style={{ height: esMovil ? "450px" : "550px" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={datosGrafico} margin={barChartMargin}>
+                <BarChart data={datosGrafico} margin={margenBarras}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
                     dataKey="name"
                     angle={-45}
                     textAnchor="end"
-                    height={isMobile ? 120 : 140}
-                    fontSize={isMobile ? 8 : 11}
+                    height={esMovil ? 100 : 120}
+                    fontSize={esMovil ? 9 : 12}
                     tick={{ fill: "#4b5563" }}
                     interval={0}
                   />
-                  <YAxis fontSize={isMobile ? 10 : 12} tick={{ fill: "#4b5563" }} width={isMobile ? 35 : 60} />
+                  <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : 60} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: "6px",
-                      fontSize: isMobile ? "11px" : "14px",
+                      fontSize: esMovil ? "11px" : "14px",
                     }}
                   />
-                  <Legend wrapperStyle={{ fontSize: isMobile ? "10px" : "12px" }} iconSize={isMobile ? 10 : 14} />
+                  <Legend wrapperStyle={{ fontSize: esMovil ? "10px" : "12px" }} iconSize={esMovil ? 10 : 14} />
                   {respuestasKeys.map((key, index) => (
                     <Bar
                       key={key}
@@ -531,7 +425,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       fill={COLORS[index % COLORS.length].bg}
                       stroke={COLORS[index % COLORS.length].border}
                       strokeWidth={2}
-                      radius={[4, 4, 0, 0]}
+                      radius={[6, 6, 0, 0]}
                       name={key}
                     />
                   ))}
@@ -541,33 +435,33 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
           )}
 
           {tipoGrafico === "torta" && (
-            <div className="w-full" style={{ height: isMobile ? "350px" : "600px" }}>
+            <div className="w-full" style={{ height: esMovil ? "500px" : "600px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
-                    data={datosGraficoPie}
+                    data={datosGraficoTorta}
                     cx="50%"
-                    cy="45%"
+                    cy="50%"
                     labelLine={false}
                     label={(entry: any) => {
                       const porcentaje = entry.porcentaje ?? 0
-                      if (isMobile && porcentaje < 3) return ""
-                      if (!isMobile && porcentaje < 2) return ""
+                      if (esMovil && porcentaje < 3) return ""
+                      if (!esMovil && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={isMobile ? 65 : 160}
-                    innerRadius={isMobile ? 50 : 80}
+                    outerRadius={esMovil ? 90 : 160}
+                    innerRadius={esMovil ? 45 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: isMobile ? 70 : 170,
+                      outerRadius: esMovil ? 95 : 170,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}
                   >
-                    {datosGraficoPie.map((entry, index) => (
+                    {datosGraficoTorta.map((entry, index) => (
                       <Cell
                         key={`cell-${index}`}
                         fill={SOLID_COLORS[index % SOLID_COLORS.length]}
@@ -582,16 +476,16 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: "6px",
-                      fontSize: isMobile ? "11px" : "14px",
+                      fontSize: esMovil ? "11px" : "14px",
                     }}
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={isMobile ? 100 : 150}
+                    height={esMovil ? 120 : 150}
                     wrapperStyle={{
-                      paddingTop: isMobile ? "10px" : "20px",
-                      fontSize: isMobile ? "9px" : "11px",
-                      maxHeight: isMobile ? "100px" : "150px",
+                      paddingTop: esMovil ? "10px" : "20px",
+                      fontSize: esMovil ? "9px" : "11px",
+                      maxHeight: esMovil ? "120px" : "150px",
                       overflowY: "auto",
                     }}
                     formatter={(value, entry: any) => {
@@ -605,41 +499,41 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
           )}
 
           {tipoGrafico === "lineal" && (
-            <div className="w-full" style={{ height: isMobile ? "450px" : "550px" }}>
+            <div className="w-full" style={{ height: esMovil ? "450px" : "550px" }}>
               <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={datosGrafico} margin={lineChartMargin}>
+                <LineChart data={datosGrafico} margin={margenLineal}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
                     dataKey="name"
                     angle={-45}
                     textAnchor="end"
-                    height={isMobile ? 120 : 140}
-                    fontSize={isMobile ? 8 : 11}
+                    height={esMovil ? 100 : 120}
+                    fontSize={esMovil ? 9 : 12}
                     tick={{ fill: "#4b5563" }}
                     interval={0}
                   />
-                  <YAxis fontSize={isMobile ? 10 : 12} tick={{ fill: "#4b5563" }} width={isMobile ? 35 : 60} />
+                  <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : 60} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: "6px",
-                      fontSize: isMobile ? "11px" : "14px",
+                      fontSize: esMovil ? "11px" : "14px",
                     }}
                   />
-                  <Legend wrapperStyle={{ fontSize: isMobile ? "10px" : "12px" }} iconSize={isMobile ? 10 : 14} />
+                  <Legend wrapperStyle={{ fontSize: esMovil ? "10px" : "12px" }} iconSize={esMovil ? 10 : 14} />
                   {respuestasKeys.map((key, index) => (
                     <Line
                       key={key}
                       type="monotone"
                       dataKey={`respuestas.${key}`}
                       stroke={COLORS[index % COLORS.length].border}
-                      strokeWidth={isMobile ? 2 : 3}
+                      strokeWidth={esMovil ? 2 : 3}
                       dot={{
                         fill: COLORS[index % COLORS.length].bg,
                         stroke: "#fff",
                         strokeWidth: 2,
-                        r: isMobile ? 4 : 5,
+                        r: esMovil ? 4 : 6,
                       }}
                       name={key}
                     />
@@ -705,6 +599,16 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
   const [seccionSeleccionada, setSeccionSeleccionada] = useState<string>("distribucion-demografica")
   const [grupoSeleccionado, setGrupoSeleccionado] = useState<string>("grupos-edad")
+  const [esMovil, setEsMovil] = useState(false)
+
+  useEffect(() => {
+    const verificarMovil = () => {
+      setEsMovil(window.innerWidth < 768)
+    }
+    verificarMovil()
+    window.addEventListener("resize", verificarMovil)
+    return () => window.removeEventListener("resize", verificarMovil)
+  }, [])
 
   const procesarDatos = () => {
     const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
@@ -853,11 +757,58 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
     })
   }
 
+  const generarTablaLikertPorSeccion = (datos: any[], seccionSeleccionada: string) => {
+    const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
+    if (!seccion || seccionSeleccionada === "distribucion-demografica") return null
+
+    const totalEncuestas = datos.length
+
+    return Object.entries(seccion.grupos).map(([key, grupo]) => {
+      const opcionesLikert = ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalmente de acuerdo"]
+
+      const conteos: Record<string, number> = {}
+      opcionesLikert.forEach((opcion) => {
+        conteos[opcion] = 0
+      })
+
+      datos.forEach((registro) => {
+        const valor = registro[grupo.campo]
+        if (valor && typeof valor === "string") {
+          const valorNorm = normalizarValorLikert(valor)
+          if (opcionesLikert.includes(valorNorm)) {
+            conteos[valorNorm]++
+          }
+        }
+      })
+
+      const suma =
+        conteos["Totalmente desacuerdo"] * 1 +
+        conteos["Desacuerdo"] * 2 +
+        conteos["Indiferente"] * 3 +
+        conteos["De acuerdo"] * 4 +
+        conteos["Totalmente de acuerdo"] * 5
+      const promedio = totalEncuestas > 0 ? (suma / totalEncuestas / 5) * 100 : 0
+
+      return {
+        nombreGrupo: grupo.nombre,
+        pregunta: grupo.nombre,
+        conteos,
+        totalEncuestas,
+        promedio,
+      }
+    })
+  }
+
   const datosGrafico = procesarDatos()
-  const seccionActual = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
-  const grupoActual = seccionActual?.grupos[grupoSeleccionado as keyof typeof seccionActual.grupos]
   const tablasSeccion = generarTablaPorSeccion()
   const tablasLikert = generarTablaLikertPorSeccion(datos, seccionSeleccionada)
+  const anchoEjeY = calcularAnchoEjeY(datosGrafico, esMovil)
+  const margenBarras = esMovil
+    ? { top: 20, right: 5, left: 10, bottom: 80 }
+    : { top: 30, right: 30, left: anchoEjeY, bottom: 100 }
+  const margenLineal = esMovil
+    ? { top: 20, right: 5, left: 15, bottom: 80 }
+    : { top: 30, right: 30, left: anchoEjeY + 80, bottom: 100 }
 
   return (
     <div className="space-y-8">
@@ -918,11 +869,13 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
 
         {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
           <TabsContent key={seccionKey} value={seccionKey} className="mt-6 space-y-8">
-            <Card className="p-6 border border-border">
-              <div className="mb-8 space-y-6">
-                <h3 className="text-2xl font-bold text-foreground">{seccion.titulo}</h3>
+            <Card className="p-3 sm:p-4 md:p-6 border border-border">
+              <div className="mb-4 sm:mb-6 md:mb-8">
+                <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-3 sm:mb-4 md:mb-6">
+                  {seccion.titulo}
+                </h3>
 
-                <div className="space-y-2">
+                <div className="space-y-2 mb-4">
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
                     <SelectTrigger className="bg-white border-border">
@@ -938,12 +891,12 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                   </Select>
                 </div>
 
-                <div className="flex gap-3 flex-wrap">
+                <div className="flex gap-2 sm:gap-3 flex-wrap">
                   <Button
                     onClick={() => setTipoGrafico("barras")}
                     variant={tipoGrafico === "barras" ? "default" : "outline"}
                     size="sm"
-                    className={tipoGrafico === "barras" ? "bg-primary text-white hover:bg-primary" : ""}
+                    className={tipoGrafico === "barras" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
                   >
                     Gráfico de Barras
                   </Button>
@@ -951,7 +904,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                     onClick={() => setTipoGrafico("torta")}
                     variant={tipoGrafico === "torta" ? "default" : "outline"}
                     size="sm"
-                    className={tipoGrafico === "torta" ? "bg-primary text-white hover:bg-primary" : ""}
+                    className={tipoGrafico === "torta" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
                   >
                     Gráfico Circular
                   </Button>
@@ -959,72 +912,72 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                     onClick={() => setTipoGrafico("lineal")}
                     variant={tipoGrafico === "lineal" ? "default" : "outline"}
                     size="sm"
-                    className={tipoGrafico === "lineal" ? "bg-primary text-white hover:bg-primary" : ""}
+                    className={tipoGrafico === "lineal" ? "bg-primary text-white hover:bg-primary" : "text-xs sm:text-sm"}
                   >
                     Gráfico de Línea
                   </Button>
                 </div>
               </div>
 
-              <div className="w-full" style={{ minHeight: "500px" }}>
+              <div className="w-full" style={{ height: esMovil ? "400px" : "500px" }}>
                 {tipoGrafico === "barras" && (
-                  <div style={{ width: "100%", height: "500px" }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={datosGrafico} margin={{ top: 40, right: 30, left: 60, bottom: 100 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis
-                          dataKey="name"
-                          angle={-45}
-                          textAnchor="end"
-                          height={120}
-                          fontSize={12}
-                          tick={{ fill: "#4b5563" }}
-                        />
-                        <YAxis fontSize={12} tick={{ fill: "#4b5563" }} />
-                        <Tooltip
-                          formatter={(value) => `${value} respuestas`}
-                          contentStyle={{
-                            backgroundColor: "#fff",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "6px",
-                          }}
-                        />
-                        <Bar
-                          dataKey="value"
-                          label={(props: any) => {
-                            const { x, y, width, index } = props
-                            const porcentaje = datosGrafico[index]?.porcentaje ?? 0
-                            return (
-                              <text
-                                x={x + width / 2}
-                                y={y - 8}
-                                fill="#1f2937"
-                                textAnchor="middle"
-                                fontSize={12}
-                                fontWeight="bold"
-                              >
-                                {`${porcentaje.toFixed(1)}%`}
-                              </text>
-                            )
-                          }}
-                          radius={[6, 6, 0, 0]}
-                        >
-                          {datosGrafico.map((entry, index) => (
-                            <Cell
-                              key={`cell-${index}`}
-                              fill={COLORS[index % COLORS.length].bg}
-                              stroke={COLORS[index % COLORS.length].border}
-                              strokeWidth={2}
-                            />
-                          ))}
-                        </Bar>
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={datosGrafico} margin={margenBarras}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="name"
+                        angle={-45}
+                        textAnchor="end"
+                        height={esMovil ? 100 : 120}
+                        fontSize={esMovil ? 9 : 12}
+                        tick={{ fill: "#4b5563" }}
+                        interval={0}
+                      />
+                      <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
+                      <Tooltip
+                        formatter={(value) => `${value} respuestas`}
+                        contentStyle={{
+                          backgroundColor: "#fff",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "6px",
+                          fontSize: esMovil ? "11px" : "14px",
+                        }}
+                      />
+                      <Bar
+                        dataKey="value"
+                        label={(props: any) => {
+                          const { x, y, width, index } = props
+                          const porcentaje = datosGrafico[index]?.porcentaje ?? 0
+                          return (
+                            <text
+                              x={x + width / 2}
+                              y={y - 8}
+                              fill="#1f2937"
+                              textAnchor="middle"
+                              fontSize={esMovil ? 9 : 12}
+                              fontWeight="bold"
+                            >
+                              {`${porcentaje.toFixed(1)}%`}
+                            </text>
+                          )
+                        }}
+                        radius={[6, 6, 0, 0]}
+                      >
+                        {datosGrafico.map((entry, index) => (
+                          <Cell
+                            key={`cell-${index}`}
+                            fill={COLORS[index % COLORS.length].bg}
+                            stroke={COLORS[index % COLORS.length].border}
+                            strokeWidth={2}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
                 )}
 
                 {tipoGrafico === "torta" && (
-                  <div style={{ width: "100%", height: "600px" }}>
+                  <div style={{ width: "100%", height: esMovil ? "500px" : "600px" }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -1034,17 +987,18 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                           labelLine={false}
                           label={(entry: any) => {
                             const porcentaje = entry.porcentaje ?? 0
-                            if (porcentaje < 2) return ""
+                            if (esMovil && porcentaje < 3) return ""
+                            if (!esMovil && porcentaje < 2) return ""
                             return `${porcentaje.toFixed(1)}%`
                           }}
-                          outerRadius={160}
-                          innerRadius={80}
+                          outerRadius={esMovil ? 90 : 160}
+                          innerRadius={esMovil ? 45 : 80}
                           fill="#8884d8"
                           dataKey="value"
                           paddingAngle={2}
                           activeIndex={undefined}
                           activeShape={{
-                            outerRadius: 170,
+                            outerRadius: esMovil ? 95 : 170,
                             stroke: "#fff",
                             strokeWidth: 3,
                           }}
@@ -1064,12 +1018,18 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             backgroundColor: "#fff",
                             border: "1px solid #e5e7eb",
                             borderRadius: "6px",
+                            fontSize: esMovil ? "11px" : "14px",
                           }}
                         />
                         <Legend
                           verticalAlign="bottom"
-                          height={36}
-                          wrapperStyle={{ paddingTop: "20px", fontSize: "12px" }}
+                          height={esMovil ? 120 : 150}
+                          wrapperStyle={{
+                            paddingTop: esMovil ? "10px" : "20px",
+                            fontSize: esMovil ? "9px" : "11px",
+                            maxHeight: esMovil ? "120px" : "150px",
+                            overflowY: "auto",
+                          }}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
                             return `${value} (${porcentaje.toFixed(1)}%)`
@@ -1081,88 +1041,101 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 )}
 
                 {tipoGrafico === "lineal" && (
-                  <div style={{ width: "100%", height: "500px" }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={datosGrafico} margin={{ top: 40, right: 30, left: 60, bottom: 100 }}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                        <XAxis
-                          dataKey="name"
-                          angle={-45}
-                          textAnchor="end"
-                          height={120}
-                          fontSize={12}
-                          tick={{ fill: "#4b5563" }}
-                        />
-                        <YAxis fontSize={12} tick={{ fill: "#4b5563" }} />
-                        <Tooltip
-                          formatter={(value) => `${value} respuestas`}
-                          contentStyle={{
-                            backgroundColor: "#fff",
-                            border: "1px solid #e5e7eb",
-                            borderRadius: "6px",
-                          }}
-                        />
-                        <Line
-                          type="monotone"
-                          dataKey="value"
-                          stroke="#0ea5e9"
-                          dot={(props: any) => {
-                            const { cx, cy, payload, index } = props
-                            const pointColor = COLORS[index % COLORS.length]
-                            return (
-                              <g key={`dot-${payload.name}`}>
-                                <circle cx={cx} cy={cy} r={6} fill={pointColor.bg} stroke="white" strokeWidth={2} />
-                                <text
-                                  x={cx}
-                                  y={cy - 28}
-                                  textAnchor="middle"
-                                  fontSize={11}
-                                  fontWeight="600"
-                                  fill="#1f2937"
-                                >
-                                  {`${payload.porcentaje.toFixed(1)}%`}
-                                </text>
-                              </g>
-                            )
-                          }}
-                          strokeWidth={3}
-                        />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
+                  <ResponsiveContainer width="100%" height="100%">
+                    <LineChart data={datosGrafico} margin={margenLineal}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                      <XAxis
+                        dataKey="name"
+                        angle={-45}
+                        textAnchor="end"
+                        height={esMovil ? 100 : 120}
+                        fontSize={esMovil ? 9 : 12}
+                        tick={{ fill: "#4b5563" }}
+                        interval={0}
+                      />
+                      <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
+                      <Tooltip
+                        formatter={(value) => `${value} respuestas`}
+                        contentStyle={{
+                          backgroundColor: "#fff",
+                          border: "1px solid #e5e7eb",
+                          borderRadius: "6px",
+                          fontSize: esMovil ? "11px" : "14px",
+                        }}
+                      />
+                      <Line
+                        type="monotone"
+                        dataKey="value"
+                        stroke="#0ea5e9"
+                        dot={(props: any) => {
+                          const { cx, cy, payload, index } = props
+                          const pointColor = COLORS[index % COLORS.length]
+                          return (
+                            <g key={`dot-${payload.name}`}>
+                              <circle
+                                cx={cx}
+                                cy={cy}
+                                r={esMovil ? 4 : 6}
+                                fill={pointColor.bg}
+                                stroke="white"
+                                strokeWidth={2}
+                              />
+                              <text
+                                x={cx}
+                                y={cy - (esMovil ? 18 : 28)}
+                                textAnchor="middle"
+                                fontSize={esMovil ? 9 : 11}
+                                fontWeight="600"
+                                fill="#1f2937"
+                              >
+                                {`${payload.porcentaje.toFixed(1)}%`}
+                              </text>
+                            </g>
+                          )
+                        }}
+                        strokeWidth={esMovil ? 2 : 3}
+                      />
+                    </LineChart>
+                  </ResponsiveContainer>
                 )}
               </div>
             </Card>
 
-            <Card className="p-6 border border-border">
-              <h3 className="text-2xl font-bold text-foreground mb-6">{seccion.titulo} - Datos Detallados</h3>
-              <div className="space-y-8">
+            <Card className="p-3 sm:p-4 md:p-6 border border-border">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-foreground mb-4 sm:mb-6">
+                {seccion.titulo} - Datos Detallados
+              </h3>
+              <div className="space-y-6 sm:space-y-8">
                 {seccionKey === "distribucion-demografica" && tablasSeccion && tablasSeccion.length > 0 && (
-                  <div className="space-y-8">
+                  <div className="space-y-6 sm:space-y-8">
                     {tablasSeccion?.map((tabla, idx) => (
                       <div key={idx}>
-                        <h4 className="text-lg font-semibold text-foreground mb-4">{tabla.nombreGrupo}</h4>
-                        <div className="w-full">
+                        <h4 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">
+                          {tabla.nombreGrupo}
+                        </h4>
+                        <div className="w-full overflow-x-auto">
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="font-bold">Categoría</TableHead>
-                                <TableHead className="font-bold text-right">Cantidad</TableHead>
-                                <TableHead className="font-bold text-right">% del Total</TableHead>
+                                <TableHead className="font-bold text-xs sm:text-sm">Categoría</TableHead>
+                                <TableHead className="font-bold text-right text-xs sm:text-sm">Cantidad</TableHead>
+                                <TableHead className="font-bold text-right text-xs sm:text-sm">% del Total</TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {tabla.datos.map((fila, idx2) => (
                                 <TableRow key={idx2}>
-                                  <TableCell className="font-medium">{fila.name}</TableCell>
-                                  <TableCell className="text-right">{fila.value}</TableCell>
-                                  <TableCell className="text-right">{fila.porcentaje.toFixed(2)}%</TableCell>
+                                  <TableCell className="font-medium text-xs sm:text-sm">{fila.name}</TableCell>
+                                  <TableCell className="text-right text-xs sm:text-sm">{fila.value}</TableCell>
+                                  <TableCell className="text-right text-xs sm:text-sm">
+                                    {fila.porcentaje.toFixed(2)}%
+                                  </TableCell>
                                 </TableRow>
                               ))}
                               <TableRow className="bg-muted/50 font-bold">
-                                <TableCell>Total</TableCell>
-                                <TableCell className="text-right">{tabla.total}</TableCell>
-                                <TableCell className="text-right">100%</TableCell>
+                                <TableCell className="text-xs sm:text-sm">Total</TableCell>
+                                <TableCell className="text-right text-xs sm:text-sm">{tabla.total}</TableCell>
+                                <TableCell className="text-right text-xs sm:text-sm">100%</TableCell>
                               </TableRow>
                             </TableBody>
                           </Table>
@@ -1173,24 +1146,24 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 )}
 
                 {seccionKey !== "distribucion-demografica" && tablasLikert && tablasLikert.length > 0 && (
-                  <div className="space-y-8">
+                  <div className="space-y-6 sm:space-y-8">
                     <div className="w-full">
-                      {/* Versión Desktop: Tabla tradicional */}
-                      <div className="hidden lg:block">
+                      {/* Versión Desktop */}
+                      <div className="hidden lg:block overflow-x-auto">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="font-bold">Pregunta</TableHead>
-                              <TableHead className="font-bold text-center whitespace-nowrap">
+                              <TableHead className="font-bold text-sm">Pregunta</TableHead>
+                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">
                                 Totalmente Desacuerdo
                               </TableHead>
-                              <TableHead className="font-bold text-center whitespace-nowrap">Desacuerdo</TableHead>
-                              <TableHead className="font-bold text-center whitespace-nowrap">Indiferente</TableHead>
-                              <TableHead className="font-bold text-center whitespace-nowrap">De Acuerdo</TableHead>
-                              <TableHead className="font-bold text-center whitespace-nowrap">
+                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">Desacuerdo</TableHead>
+                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">Indiferente</TableHead>
+                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">De Acuerdo</TableHead>
+                              <TableHead className="font-bold text-center text-sm whitespace-nowrap">
                                 Totalmente Acuerdo
                               </TableHead>
-                              <TableHead className="font-bold text-center bg-muted whitespace-nowrap">
+                              <TableHead className="font-bold text-center bg-muted text-sm whitespace-nowrap">
                                 Promedio
                               </TableHead>
                             </TableRow>
@@ -1235,73 +1208,14 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                 </TableCell>
                               </TableRow>
                             ))}
-                            <TableRow className="bg-muted/70">
-                              <TableCell className="font-bold text-sm py-3">Promedio General</TableCell>
-                              <TableCell className="text-center font-bold text-sm py-3">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </TableCell>
-                              <TableCell className="text-center font-bold text-sm py-3">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </TableCell>
-                              <TableCell className="text-center font-bold text-sm py-3">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </TableCell>
-                              <TableCell className="text-center font-bold text-sm py-3">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </TableCell>
-                              <TableCell className="text-center font-bold text-sm py-3">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </TableCell>
-                              <TableCell className="text-center bg-muted font-bold text-sm py-3">
-                                {tablasLikert.length > 0
-                                  ? (
-                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </TableCell>
-                            </TableRow>
                           </TableBody>
                         </Table>
                       </div>
 
-                      <div className="lg:hidden space-y-6">
+                      {/* Versión Mobile */}
+                      <div className="lg:hidden space-y-4">
                         {tablasLikert.map((tabla, idx) => (
-                          <div key={idx} className="border rounded-lg p-4 bg-card">
+                          <Card key={idx} className="p-4 border border-border">
                             <h5 className="font-semibold text-sm mb-4 text-foreground leading-tight">
                               {tabla.pregunta}
                             </h5>
@@ -1355,90 +1269,8 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                 <span className="text-sm font-bold">{tabla.promedio.toFixed(1)}%</span>
                               </div>
                             </div>
-                          </div>
+                          </Card>
                         ))}
-
-                        {/* Promedio General en mobile */}
-                        <div className="border rounded-lg p-4 bg-muted/70">
-                          <h5 className="font-bold text-sm mb-4">Promedio General</h5>
-                          <div className="grid grid-cols-2 gap-3 text-xs">
-                            <div>
-                              <span className="text-muted-foreground block mb-1">Totalmente Desacuerdo</span>
-                              <span className="font-semibold">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Totalmente desacuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground block mb-1">Desacuerdo</span>
-                              <span className="font-semibold">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Desacuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground block mb-1">Indiferente</span>
-                              <span className="font-semibold">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Indiferente"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground block mb-1">De Acuerdo</span>
-                              <span className="font-semibold">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["De acuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </span>
-                            </div>
-                            <div>
-                              <span className="text-muted-foreground block mb-1">Totalmente Acuerdo</span>
-                              <span className="font-semibold">
-                                {tablasLikert.length > 0 && tablasLikert[0].totalEncuestas > 0
-                                  ? (
-                                      tablasLikert.reduce(
-                                        (sum, t) => sum + (t.conteos["Totalmente de acuerdo"] / t.totalEncuestas) * 100,
-                                        0,
-                                      ) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </span>
-                            </div>
-                            <div className="col-span-2 mt-2 pt-2 border-t">
-                              <span className="text-muted-foreground block mb-1">Promedio Total</span>
-                              <span className="font-bold text-base">
-                                {tablasLikert.length > 0
-                                  ? (
-                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
-                                    ).toFixed(1) + "%"
-                                  : "0.0%"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
                       </div>
                     </div>
                   </div>

@@ -306,16 +306,13 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
-// Función para formatear porcentajes: muestra 1 decimal solo si es necesario
+// Función para formatear porcentaje: 79.2% para decimal, 70% para entero
 const formatearPorcentaje = (valor: number): string => {
-  const redondeado = Math.round(valor * 10) / 10 // Redondear a 1 decimal
-  const esEntero = Math.abs(redondeado - Math.round(redondeado)) < 0.0001
-  
-  if (esEntero) {
-    return Math.round(redondeado).toFixed(0) + "%"
-  } else {
-    return redondeado.toFixed(1) + "%"
+  const redondeado = Math.round(valor * 10) / 10; // Redondear a una decimal
+  if (redondeado % 1 === 0) {
+    return `${redondeado.toFixed(0)}%`;
   }
+  return `${redondeado.toFixed(1)}%`;
 }
 
 // Mapeo de nombres de campos a preguntas legibles COMPLETAS
@@ -354,7 +351,7 @@ const PREGUNTAS_LIKERT: Record<string, string> = {
     "¿La falta de información es un obstáculo para la correcta gestión de los residuos sólidos domiciliario?",
   // Sustentabilidad Ambiental
   desechos_organicos_funcionalidad: "¿Los desechos orgánicos generados en el hogar pueden tener otra funcionalidad?",
-  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de la población?",
+  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de de la población?",
   reduccion_reciclaje_reutilizacion_cuida_ambiente:
     "¿La reducción, reciclaje y la reutilización de los desechos sólidos puede cuidar al medio ambiente y a la vida silvestre?",
   transformacion_desechos_nuevos_productos:
@@ -570,7 +567,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       const porcentaje = entry.porcentaje ?? 0
                       if (esMovil && porcentaje < 5) return ""
                       if (!esMovil && porcentaje < 2) return ""
-                      return formatearPorcentaje(porcentaje)
+                      return `${formatearPorcentaje(porcentaje)}`
                     }}
                     outerRadius={esMovil ? 70 : 160}
                     innerRadius={esMovil ? 35 : 80}
@@ -1058,7 +1055,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               fontSize={esMovil ? 9 : 12}
                               fontWeight="bold"
                             >
-                              {formatearPorcentaje(porcentaje)}
+                              {`${formatearPorcentaje(porcentaje)}`}
                             </text>
                           )
                         }}
@@ -1090,7 +1087,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             const porcentaje = entry.porcentaje ?? 0
                             if (esMovil && porcentaje < 5) return ""
                             if (!esMovil && porcentaje < 2) return ""
-                            return formatearPorcentaje(porcentaje)
+                            return `${formatearPorcentaje(porcentaje)}`
                           }}
                           outerRadius={esMovil ? 70 : 160}
                           innerRadius={esMovil ? 35 : 80}
@@ -1189,7 +1186,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                                 fontWeight="600"
                                 fill="#1f2937"
                               >
-                                {formatearPorcentaje(payload.porcentaje)}
+                                {`${formatearPorcentaje(payload.porcentaje)}`}
                               </text>
                             </g>
                           )
@@ -1359,7 +1356,9 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               </TableCell>
                               <TableCell className="text-center bg-muted font-bold text-sm py-3">
                                 {tablasLikert.length > 0
-                                  ? formatearPorcentaje(tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length)
+                                  ? formatearPorcentaje(
+                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
+                                    )
                                   : "0%"}
                               </TableCell>
                             </TableRow>
@@ -1495,7 +1494,9 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               <span className="text-muted-foreground block mb-1">Promedio Total</span>
                               <span className="font-bold text-base">
                                 {tablasLikert.length > 0
-                                  ? formatearPorcentaje(tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length)
+                                  ? formatearPorcentaje(
+                                      tablasLikert.reduce((sum, t) => sum + t.promedio, 0) / tablasLikert.length
+                                    )
                                   : "0%"}
                               </span>
                             </div>

@@ -340,7 +340,7 @@ const PREGUNTAS_LIKERT: Record<string, string> = {
   consciente_impacto_desechos_salud:
     "¿Es consciente del impacto de los desechos sólidos domiciliarios en el medio ambiente?",
   investiga_temas_ambientales: "¿Investiga frecuentemente acerca de temas medio ambientales?",
-  consecuencias_acumulacion_desechos:
+  consequencias_acumulacion_desechos:
     "¿Conoce las consecuencias de la acumulación de los desechos sólidos domiciliarios?",
   beneficios_reutilizar_residuo: "¿Conoce los beneficios de reutilizar un residuo domiciliario?",
   falta_informacion_obstaculo_gestion:
@@ -966,10 +966,24 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
                         <SelectItem key={key} value={key} className="py-3 px-4">
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm sm:text-base mb-1">
-                              {grupo.nombre}
-                            </span>
-                            {seccionKey !== "distribucion-demografica" && (
+                            {/* En PC: Muestra solo el nombre corto (como estaba) */}
+                            {!esMovil && (
+                              <span className="font-medium text-sm sm:text-base mb-1">
+                                {grupo.nombre}
+                              </span>
+                            )}
+                            {/* En móvil: Muestra la pregunta completa como título principal */}
+                            {esMovil && (
+                              <>
+                                <span className="font-semibold text-sm sm:text-base mb-1 text-foreground">
+                                  {PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre}
+                                </span>
+                                <span className="text-xs text-muted-foreground mt-1">
+                                  {grupo.nombre}
+                                </span>
+                              </>
+                            )}
+                            {!esMovil && seccionKey !== "distribucion-demografica" && (
                               <span className="text-xs text-muted-foreground mt-1">
                                 {PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || ""}
                               </span>
@@ -981,10 +995,19 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                   </Select>
                   {seccionKey !== "distribucion-demografica" && grupoSeleccionado && (
                     <div className="mt-2 p-3 bg-muted/30 rounded-md border border-border/50">
-                      <p className="text-xs sm:text-sm text-foreground/80">
-                        {PREGUNTAS_LIKERT[seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.campo as keyof typeof PREGUNTAS_LIKERT] || 
-                         "Pregunta de escala Likert"}
-                      </p>
+                      {/* En PC: Muestra la pregunta completa como texto gris */}
+                      {!esMovil && (
+                        <p className="text-xs sm:text-sm text-foreground/80">
+                          {PREGUNTAS_LIKERT[seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.campo as keyof typeof PREGUNTAS_LIKERT] || 
+                           "Pregunta de escala Likert"}
+                        </p>
+                      )}
+                      {/* En móvil: Muestra el nombre corto como texto gris (ya que la pregunta completa está arriba como título) */}
+                      {esMovil && (
+                        <p className="text-xs sm:text-sm text-foreground/80">
+                          {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "Variable seleccionada"}
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>

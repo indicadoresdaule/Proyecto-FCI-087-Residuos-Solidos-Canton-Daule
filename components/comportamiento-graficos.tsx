@@ -933,10 +933,10 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 <div className="space-y-2 mb-4">
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
-                    <SelectTrigger className="bg-white border-border text-left">
+                    <SelectTrigger className="bg-white border-border text-left min-h-[3rem] px-3 py-2.5">
                       <SelectValue>
-                        <div className="pr-4 overflow-hidden">
-                          <span className="font-medium text-foreground whitespace-normal break-words">
+                        <div className="pr-4 overflow-hidden w-full">
+                          <span className="font-medium text-foreground whitespace-normal break-words text-sm sm:text-base">
                             {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos] && 
                              obtenerPreguntaCompleta(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos])}
                           </span>

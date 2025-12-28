@@ -305,12 +305,6 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
-// Función para acortar texto en móvil
-const acortarTexto = (texto: string, limite: number = 25): string => {
-  if (texto.length <= limite) return texto
-  return texto.substring(0, limite) + "..."
-}
-
 function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string }) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
   const [esMovil, setEsMovil] = useState(false)
@@ -455,14 +449,14 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       if (!esMovil && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={esMovil ? 70 : 160}
-                    innerRadius={esMovil ? 35 : 80}
+                    outerRadius={esMovil ? 80 : 160}
+                    innerRadius={esMovil ? 40 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: esMovil ? 75 : 170,
+                      outerRadius: esMovil ? 85 : 170,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}
@@ -487,13 +481,16 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={esMovil ? 180 : 150}
+                    height={esMovil ? 160 : 150}
                     wrapperStyle={{
                       paddingTop: esMovil ? "10px" : "20px",
                       fontSize: esMovil ? "8px" : "11px",
-                      maxHeight: esMovil ? "180px" : "150px",
+                      maxHeight: esMovil ? "160px" : "150px",
                       overflowY: "auto",
+                      lineHeight: "1.2",
                     }}
+                    layout={esMovil ? "vertical" : "horizontal"}
+                    align={esMovil ? "left" : "center"}
                     formatter={(value, entry: any) => {
                       const porcentaje = entry.payload?.porcentaje ?? 0
                       return `${value} (${porcentaje.toFixed(1)}%)`
@@ -885,24 +882,12 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
                     <SelectTrigger className="bg-white border-border">
-                      <SelectValue>
-                        {esMovil 
-                          ? acortarTexto(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "", 30)
-                          : seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "Seleccionar"
-                        }
-                      </SelectValue>
+                      <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-white max-h-80 overflow-y-auto">
+                    <SelectContent className="bg-white">
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
-                        <SelectItem key={key} value={key} className="text-xs sm:text-sm">
-                          <div className="py-1">
-                            <div className="font-medium">{grupo.nombre}</div>
-                            {esMovil && grupo.nombre.length > 30 && (
-                              <div className="text-xs text-muted-foreground mt-1 truncate">
-                                {grupo.nombre}
-                              </div>
-                            )}
-                          </div>
+                        <SelectItem key={key} value={key}>
+                          {grupo.nombre}
                         </SelectItem>
                       ))}
                     </SelectContent>
@@ -937,7 +922,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 </div>
               </div>
 
-              <div className="w-full" style={{ height: esMovil ? "500px" : "500px" }}>
+              <div className="w-full" style={{ height: esMovil ? "450px" : "500px" }}>
                 {tipoGrafico === "barras" && (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={datosGrafico} margin={margenBarras}>
@@ -1009,14 +994,14 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             if (!esMovil && porcentaje < 2) return ""
                             return `${porcentaje.toFixed(1)}%`
                           }}
-                          outerRadius={esMovil ? 70 : 160}
-                          innerRadius={esMovil ? 35 : 80}
+                          outerRadius={esMovil ? 80 : 160}
+                          innerRadius={esMovil ? 40 : 80}
                           fill="#8884d8"
                           dataKey="value"
                           paddingAngle={2}
                           activeIndex={undefined}
                           activeShape={{
-                            outerRadius: esMovil ? 75 : 170,
+                            outerRadius: esMovil ? 85 : 170,
                             stroke: "#fff",
                             strokeWidth: 3,
                           }}
@@ -1041,13 +1026,16 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                         />
                         <Legend
                           verticalAlign="bottom"
-                          height={esMovil ? 180 : 150}
+                          height={esMovil ? 160 : 150}
                           wrapperStyle={{
                             paddingTop: esMovil ? "10px" : "20px",
                             fontSize: esMovil ? "8px" : "11px",
-                            maxHeight: esMovil ? "180px" : "150px",
+                            maxHeight: esMovil ? "160px" : "150px",
                             overflowY: "auto",
+                            lineHeight: "1.2",
                           }}
+                          layout={esMovil ? "vertical" : "horizontal"}
+                          align={esMovil ? "left" : "center"}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
                             return `${value} (${porcentaje.toFixed(1)}%)`
@@ -1129,7 +1117,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                     {tablasSeccion?.map((tabla, idx) => (
                       <div key={idx}>
                         <h4 className="text-base sm:text-lg font-semibold text-foreground mb-3 sm:mb-4">
-                          {esMovil ? acortarTexto(tabla.nombreGrupo, 40) : tabla.nombreGrupo}
+                          {tabla.nombreGrupo}
                         </h4>
                         <div className="w-full overflow-x-auto">
                           <Table>
@@ -1235,7 +1223,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                         {tablasLikert.map((tabla, idx) => (
                           <Card key={idx} className="p-4 border border-border">
                             <h5 className="font-semibold text-sm mb-4 text-foreground leading-tight">
-                              {esMovil ? acortarTexto(tabla.pregunta, 60) : tabla.pregunta}
+                              {tabla.pregunta}
                             </h5>
                             <div className="space-y-3">
                               <div className="flex justify-between items-center py-2 border-b">

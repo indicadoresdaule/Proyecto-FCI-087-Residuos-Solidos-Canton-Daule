@@ -269,7 +269,7 @@ const SECCIONES = {
       "impacto-ambiente": {
         nombre: "¿El manejo adecuado tiene impacto significativo?",
         campo: "manejo_adecuado_desechos_impacto_ambiente",
-        valores: ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalmente de acuerdo"],
+        valores: ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalfully de acuerdo"],
       },
       "participar-emprendimiento": {
         nombre: "¿Está dispuesto a participar en emprendimientos?",
@@ -303,6 +303,12 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   const maxValor = Math.max(...datos.map((d) => d.value))
   const maxDigitos = maxValor.toFixed(0).length
   return Math.max(50, maxDigitos * 8 + 20)
+}
+
+// Función para acortar texto en el selector (solo para display)
+const acortarTextoSelector = (texto: string, limite: number = 50): string => {
+  if (texto.length <= limite) return texto
+  return texto.substring(0, limite) + "..."
 }
 
 // Mapeo de nombres de campos a preguntas legibles COMPLETAS
@@ -946,17 +952,41 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 <div className="space-y-2 mb-4">
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
-                    <SelectTrigger className="bg-white border-border">
-                      <SelectValue />
+                    <SelectTrigger className="bg-white border-border text-left">
+                      <SelectValue>
+                        <div className="truncate pr-4">
+                          {esMovil 
+                            ? acortarTextoSelector(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "", 40)
+                            : acortarTextoSelector(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "", 60)
+                          }
+                        </div>
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="bg-white">
+                    <SelectContent className="bg-white max-h-96 overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
-                        <SelectItem key={key} value={key}>
-                          {grupo.nombre}
+                        <SelectItem key={key} value={key} className="py-3 px-4">
+                          <div className="flex flex-col">
+                            <span className="font-medium text-sm sm:text-base mb-1">
+                              {grupo.nombre}
+                            </span>
+                            {seccionKey !== "distribucion-demografica" && (
+                              <span className="text-xs text-muted-foreground mt-1">
+                                {PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || ""}
+                              </span>
+                            )}
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
+                  {seccionKey !== "distribucion-demografica" && grupoSeleccionado && (
+                    <div className="mt-2 p-3 bg-muted/30 rounded-md border border-border/50">
+                      <p className="text-xs sm:text-sm text-foreground/80">
+                        {PREGUNTAS_LIKERT[seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.campo as keyof typeof PREGUNTAS_LIKERT] || 
+                         "Pregunta de escala Likert"}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex gap-2 sm:gap-3 flex-wrap">

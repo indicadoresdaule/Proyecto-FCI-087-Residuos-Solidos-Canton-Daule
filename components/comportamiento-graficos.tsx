@@ -441,16 +441,16 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   <Pie
                     data={datosGraficoTorta}
                     cx="50%"
-                    cy={esMovil ? "45%" : "50%"} // Bajar un poco el gráfico en móvil
+                    cy="50%"
                     labelLine={false}
                     label={(entry: any) => {
                       const porcentaje = entry.porcentaje ?? 0
-                      if (esMovil && porcentaje < 3) return ""
+                      if (esMovil && porcentaje < 5) return ""
                       if (!esMovil && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={esMovil ? 80 : 160} // Reducir radio en móvil
-                    innerRadius={esMovil ? 40 : 80}  // Reducir radio interior en móvil
+                    outerRadius={esMovil ? 80 : 160}
+                    innerRadius={esMovil ? 40 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
@@ -481,27 +481,22 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={esMovil ? 140 : 150} // Aumentar altura de leyenda en móvil
+                    height={esMovil ? 140 : 150}
                     wrapperStyle={{
-                      paddingTop: esMovil ? "5px" : "20px",
-                      fontSize: esMovil ? "10px" : "11px", // Aumentar tamaño de fuente en móvil
+                      paddingTop: esMovil ? "10px" : "20px",
+                      fontSize: esMovil ? "9px" : "11px",
                       maxHeight: esMovil ? "140px" : "150px",
                       overflowY: "auto",
-                      lineHeight: esMovil ? "1.4" : "normal", // Aumentar interlineado en móvil
                     }}
                     formatter={(value, entry: any) => {
                       const porcentaje = entry.payload?.porcentaje ?? 0
-                      return (
-                        <span style={{ 
-                          display: "inline-block",
-                          marginBottom: esMovil ? "2px" : "0" // Espacio entre elementos en móvil
-                        }}>
-                          {value} ({porcentaje.toFixed(1)}%)
-                        </span>
-                      )
+                      // Abreviar nombres largos en móvil
+                      if (esMovil) {
+                        if (value === "Totalmente desacuerdo") return `T. Desac. (${porcentaje.toFixed(1)}%)`
+                        if (value === "Totalmente de acuerdo") return `T. Acuerdo (${porcentaje.toFixed(1)}%)`
+                      }
+                      return `${value} (${porcentaje.toFixed(1)}%)`
                     }}
-                    iconSize={esMovil ? 10 : 12} // Aumentar tamaño del icono en móvil
-                    layout={esMovil ? "vertical" : "horizontal"} // Layout vertical en móvil para mejor organización
                   />
                 </PieChart>
               </ResponsiveContainer>
@@ -987,28 +982,28 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 )}
 
                 {tipoGrafico === "torta" && (
-                  <div style={{ width: "100%", height: esMovil ? "550px" : "600px" }}> {/* Aumentar altura en móvil */}
+                  <div style={{ height: esMovil ? "450px" : "600px" }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
                           data={datosGrafico}
                           cx="50%"
-                          cy={esMovil ? "45%" : "50%"} // Bajar el gráfico en móvil
+                          cy="50%"
                           labelLine={false}
                           label={(entry: any) => {
                             const porcentaje = entry.porcentaje ?? 0
-                            if (esMovil && porcentaje < 3) return ""
+                            if (esMovil && porcentaje < 5) return ""
                             if (!esMovil && porcentaje < 2) return ""
                             return `${porcentaje.toFixed(1)}%`
                           }}
-                          outerRadius={esMovil ? 85 : 160} // Reducir radio en móvil
-                          innerRadius={esMovil ? 42 : 80}  // Reducir radio interior en móvil
+                          outerRadius={esMovil ? 80 : 160}
+                          innerRadius={esMovil ? 40 : 80}
                           fill="#8884d8"
                           dataKey="value"
                           paddingAngle={2}
                           activeIndex={undefined}
                           activeShape={{
-                            outerRadius: esMovil ? 90 : 170,
+                            outerRadius: esMovil ? 85 : 170,
                             stroke: "#fff",
                             strokeWidth: 3,
                           }}
@@ -1033,31 +1028,22 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                         />
                         <Legend
                           verticalAlign="bottom"
-                          height={esMovil ? 160 : 150} // Más altura para leyenda en móvil
+                          height={esMovil ? 140 : 150}
                           wrapperStyle={{
                             paddingTop: esMovil ? "10px" : "20px",
-                            fontSize: esMovil ? "11px" : "11px", // Tamaño de fuente más grande en móvil
-                            maxHeight: esMovil ? "160px" : "150px",
+                            fontSize: esMovil ? "9px" : "11px",
+                            maxHeight: esMovil ? "140px" : "150px",
                             overflowY: "auto",
-                            lineHeight: esMovil ? "1.5" : "normal", // Más interlineado en móvil
                           }}
                           formatter={(value, entry: any) => {
                             const porcentaje = entry.payload?.porcentaje ?? 0
-                            return (
-                              <span style={{ 
-                                display: "inline-block",
-                                marginBottom: esMovil ? "4px" : "0", // Más espacio entre elementos
-                                whiteSpace: "nowrap", // Evitar que se rompa en varias líneas
-                                overflow: "hidden",
-                                textOverflow: "ellipsis",
-                                maxWidth: esMovil ? "95%" : "100%"
-                              }}>
-                                {value} ({porcentaje.toFixed(1)}%)
-                              </span>
-                            )
+                            // Abreviar nombres largos en móvil
+                            if (esMovil) {
+                              if (value === "Totalmente desacuerdo") return `T. Desac. (${porcentaje.toFixed(1)}%)`
+                              if (value === "Totalmente de acuerdo") return `T. Acuerdo (${porcentaje.toFixed(1)}%)`
+                            }
+                            return `${value} (${porcentaje.toFixed(1)}%)`
                           }}
-                          iconSize={esMovil ? 12 : 12} // Icono más grande en móvil
-                          layout={esMovil ? "vertical" : "horizontal"} // Layout vertical en móvil
                         />
                       </PieChart>
                     </ResponsiveContainer>

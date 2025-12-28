@@ -305,6 +305,116 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
+// Mapeo de nombres de campos a preguntas legibles COMPLETAS
+const PREGUNTAS_LIKERT: Record<string, string> = {
+  // Determinantes Socioculturales
+  conoce_desechos_solidos: "¿Conoce usted qué son los desechos sólidos domiciliarios?",
+  cree_comportamiento_adecuado_manejo:
+    "¿Cree usted que existe un comportamiento adecuado en el manejo de los desechos sólidos domiciliarios en la comunidad?",
+  separar_desechos_por_origen:
+    "¿Se debe separar los desechos sólidos según su tipo ejemplo: (papel - plástico - orgánico - inorgánico)?",
+  clasificacion_correcta_desechos:
+    "¿Es importante la correcta clasificación de los desechos sólidos orgánicos e inorgánicos en el hogar?",
+  comportamiento_comunidad_influye:
+    "¿Cree que el comportamiento de la comunidad influye en deterioro del medio ambiente?",
+  dedica_tiempo_reducir_reutilizar_reciclar:
+    "¿Dedica tiempo para reducir, reutilizar y/o reciclar los desechos sólidos que se generan en el hogar?",
+  desechos_solidos_problema_comunidad: "¿Los desechos sólidos son un gran problema para la comunidad?",
+  // Determinantes Afectivos
+  preocupa_exceso_desechos: "¿Le preocupa el exceso de desechos sólidos domiciliarios?",
+  desechos_contaminan_ambiente:
+    "¿Considera que los desechos sólidos domiciliarios intervienen en las consecuencias climáticas?",
+  afecta_emocionalmente_noticias_contaminacion:
+    "¿Le afecta emocionalmente cuando escucha noticias acerca de los desastres naturales?",
+  frustracion_falta_acciones_ambientales:
+    "¿Siente frustración debido a la falta de acciones significativas para abordar la generación de los desechos sólidos?",
+  importancia_planeta_futuras_generaciones:
+    "¿Considera importante pensar en el tipo de planeta que dejaremos a las futuras generaciones?",
+  // Determinantes Cognitivos
+  consciente_impacto_desechos_salud:
+    "¿Es consciente del impacto de los desechos sólidos domiciliarios en el medio ambiente?",
+  investiga_temas_ambientales: "¿Investiga frecuentemente acerca de temas medio ambientales?",
+  consecuencias_acumulacion_desechos:
+    "¿Conoce las consecuencias de la acumulación de los desechos sólidos domiciliarios?",
+  beneficios_reutilizar_residuo: "¿Conoce los beneficios de reutilizar un residuo domiciliario?",
+  falta_informacion_obstaculo_gestion:
+    "¿La falta de información es un obstáculo para la correcta gestión de los residuos sólidos domiciliario?",
+  // Sustentabilidad Ambiental
+  desechos_organicos_funcionalidad: "¿Los desechos orgánicos generados en el hogar pueden tener otra funcionalidad?",
+  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de la población?",
+  reduccion_reciclaje_reutilizacion_cuida_ambiente:
+    "¿La reducción, reciclaje y la reutilización de los desechos sólidos puede cuidar al medio ambiente y a la vida silvestre?",
+  transformacion_desechos_nuevos_productos:
+    "¿Cree que la transformación de desechos sólidos en nuevos productos puede contribuir significativamente a la reducción de la generación de desechos?",
+  necesita_info_educacion_ambiental: "¿Necesita más información acerca de educación ambiental?",
+  // Sustentabilidad Económica
+  practica_separacion_reciclaje_ingreso:
+    "¿En su hogar practica la separación de los desechos para el reciclaje y le representa algún ingreso?",
+  desechos_hogar_reutilizados:
+    "¿Los desechos sólidos generados en el hogar pueden ser reutilizados para una nueva función o creación de un producto?",
+  manejo_adecuado_desechos_aporta_desarrollo:
+    "¿Cree que el manejo adecuado de los desechos sólidos domiciliarios podría aportar al desarrollo económico comunitario?",
+  emprendimientos_reutilizacion_aportan_economia:
+    "¿Los emprendimientos en base a la reutilización de los desechos aporta a su economía?",
+  manejo_adecuado_desechos_oportunidad_emprendimiento:
+    "¿El manejo adecuado de los desechos sólidos domiciliarios ofrece oportunidades para el emprendimiento?",
+  // Desarrollo Comunitario
+  reducir_residuos_eventos_concientizacion:
+    "¿Es posible reducir la generación de residuos sólidos domiciliarios por medio de eventos de concientización?",
+  participaria_talleres_buenas_practicas:
+    "¿Participaría en talleres de buenas prácticas y capacitaciones para el correcto manejo de los desechos sólidos domiciliarios?",
+  manejo_adecuado_desechos_impacto_ambiente:
+    "¿El manejo adecuado de los desechos sólidos domiciliarios puede tener un impacto significativo al medio ambiente?",
+  dispuesto_participar_emprendimiento_desechos:
+    "¿Está dispuesto a participar en un emprendimiento en base al uso de los desechos sólidos?",
+  participaria_feria_emprendimientos_desechos:
+    "¿Participaría a una feria de emprendimientos comunitarios en base a desechos domiciliarios reutilizados?",
+}
+
+const generarTablaLikertPorSeccion = (datos: any[], seccionSeleccionada: string) => {
+  const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
+  if (!seccion || seccionSeleccionada === "distribucion-demografica") return null
+
+  const totalEncuestas = datos.length
+
+  return Object.entries(seccion.grupos).map(([key, grupo]) => {
+    const opcionesLikert = ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalmente de acuerdo"]
+
+    // CONTARA: contar cuántas veces aparece cada opción
+    const conteos: Record<string, number> = {}
+    opcionesLikert.forEach((opcion) => {
+      conteos[opcion] = 0
+    })
+
+    datos.forEach((registro) => {
+      const valor = registro[grupo.campo]
+      if (valor && typeof valor === "string") {
+        const valorNorm = normalizarValorLikert(valor)
+        if (opcionesLikert.includes(valorNorm)) {
+          conteos[valorNorm]++
+        }
+      }
+    })
+
+    // Calcular promedio ponderado
+    const suma =
+      conteos["Totalmente desacuerdo"] * 1 +
+      conteos["Desacuerdo"] * 2 +
+      conteos["Indiferente"] * 3 +
+      conteos["De acuerdo"] * 4 +
+      conteos["Totalmente de acuerdo"] * 5
+    const promedio = totalEncuestas > 0 ? (suma / totalEncuestas / 5) * 100 : 0
+
+    return {
+      nombreGrupo: grupo.nombre,
+      pregunta: PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre,
+      conteos,
+      totalEncuestas,
+      promedio,
+    }
+  })
+}
+
 function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string }) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
   const [esMovil, setEsMovil] = useState(false)
@@ -753,48 +863,6 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
           porcentaje: total > 0 ? (value / total) * 100 : 0,
         })),
         total,
-      }
-    })
-  }
-
-  const generarTablaLikertPorSeccion = (datos: any[], seccionSeleccionada: string) => {
-    const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
-    if (!seccion || seccionSeleccionada === "distribucion-demografica") return null
-
-    const totalEncuestas = datos.length
-
-    return Object.entries(seccion.grupos).map(([key, grupo]) => {
-      const opcionesLikert = ["Totalmente desacuerdo", "Desacuerdo", "Indiferente", "De acuerdo", "Totalmente de acuerdo"]
-
-      const conteos: Record<string, number> = {}
-      opcionesLikert.forEach((opcion) => {
-        conteos[opcion] = 0
-      })
-
-      datos.forEach((registro) => {
-        const valor = registro[grupo.campo]
-        if (valor && typeof valor === "string") {
-          const valorNorm = normalizarValorLikert(valor)
-          if (opcionesLikert.includes(valorNorm)) {
-            conteos[valorNorm]++
-          }
-        }
-      })
-
-      const suma =
-        conteos["Totalmente desacuerdo"] * 1 +
-        conteos["Desacuerdo"] * 2 +
-        conteos["Indiferente"] * 3 +
-        conteos["De acuerdo"] * 4 +
-        conteos["Totalmente de acuerdo"] * 5
-      const promedio = totalEncuestas > 0 ? (suma / totalEncuestas / 5) * 100 : 0
-
-      return {
-        nombreGrupo: grupo.nombre,
-        pregunta: grupo.nombre,
-        conteos,
-        totalEncuestas,
-        promedio,
       }
     })
   }

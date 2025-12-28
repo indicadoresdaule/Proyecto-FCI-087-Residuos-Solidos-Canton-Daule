@@ -355,7 +355,7 @@ const PREGUNTAS_LIKERT: Record<string, string> = {
     "¿Es importante la correcta clasificación de los desechos sólidos orgánicos e inorgánicos en el hogar?",
   comportamiento_comunidad_influye:
     "¿Cree que el comportamiento de la comunidad influye en deterioro del medio ambiente?",
-  dedica_tiempo_reducir_reutilizar_reciclar:
+  dedica_tiempo_reutilizar_reciclar:
     "¿Dedica tiempo para reducir, reutilizar y/o reciclar los desechos sólidos que se generan en el hogar?",
   desechos_solidos_problema_comunidad: "¿Los desechos sólidos son un gran problema para la comunidad?",
   // Determinantes Afectivos
@@ -541,13 +541,13 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
           )}
 
           {tipoGrafico === "torta" && (
-            <div className="w-full" style={{ height: isMobile ? "400px" : "600px" }}>
+            <div className="w-full" style={{ height: isMobile ? "350px" : "600px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
                     data={datosGraficoPie}
                     cx="50%"
-                    cy="50%"
+                    cy="45%"
                     labelLine={false}
                     label={(entry: any) => {
                       const porcentaje = entry.porcentaje ?? 0
@@ -555,14 +555,14 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       if (!isMobile && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={isMobile ? 80 : 160}
-                    innerRadius={isMobile ? 40 : 80}
+                    outerRadius={isMobile ? 70 : 160}
+                    innerRadius={isMobile ? 35 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: isMobile ? 85 : 170,
+                      outerRadius: isMobile ? 75 : 170,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}
@@ -587,11 +587,11 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={isMobile ? 120 : 150}
+                    height={isMobile ? 100 : 150}
                     wrapperStyle={{
-                      paddingTop: "20px",
+                      paddingTop: isMobile ? "10px" : "20px",
                       fontSize: isMobile ? "9px" : "11px",
-                      maxHeight: isMobile ? "120px" : "150px",
+                      maxHeight: isMobile ? "100px" : "150px",
                       overflowY: "auto",
                     }}
                     formatter={(value, entry: any) => {
@@ -651,7 +651,6 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
         </TabsContent>
 
         <TabsContent value="tabla" className="w-full overflow-x-auto">
-          // Diseño responsivo: tabla en desktop, tarjetas en móvil
           <div className="hidden md:block">
             <Table>
               <TableHeader>
@@ -702,7 +701,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
   )
 }
 
-export function ComportamientoGraficos({ datos }: GraficosProps) {
+function ComportamientoGraficos({ datos }: GraficosProps) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
   const [seccionSeleccionada, setSeccionSeleccionada] = useState<string>("distribucion-demografica")
   const [grupoSeleccionado, setGrupoSeleccionado] = useState<string>("grupos-edad")
@@ -753,7 +752,6 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
         }
       })
 
-      // Retornar porcentajes individuales exactamente como en la tabla
       return Object.entries(conteos).map(([name, value]) => ({
         name,
         value,
@@ -798,7 +796,6 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
           conteos[label] = 0
           datos.forEach((registro) => {
             const valor = Number(registro[campo]) || 0
-            // COUNT: si edad > 0, contar 1
             if (valor > 0) {
               conteos[label]++
             }
@@ -818,7 +815,6 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
         }
       }
 
-      // Para otras variables: usar CONTARA
       const conteos: Record<string, number> = {}
       grupo.valores?.forEach((valor) => {
         conteos[valor] = 0
@@ -1455,3 +1451,5 @@ export function ComportamientoGraficos({ datos }: GraficosProps) {
     </div>
   )
 }
+
+export { ComportamientoGraficos }

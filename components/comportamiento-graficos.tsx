@@ -648,7 +648,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       dot={{
                         fill: COLORS[index % COLORS.length].bg,
                         stroke: "#fff",
-                        strokeWidth: 2,
+                        strokeWidth=2,
                         r: esMovil ? 4 : 6,
                       }}
                       name={key}
@@ -966,50 +966,15 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
                         <SelectItem key={key} value={key} className="py-3 px-4">
                           <div className="flex flex-col">
-                            {/* En PC: Muestra solo el nombre corto (como estaba) */}
-                            {!esMovil && (
-                              <span className="font-medium text-sm sm:text-base mb-1">
-                                {grupo.nombre}
-                              </span>
-                            )}
-                            {/* En móvil: Muestra la pregunta completa como título principal */}
-                            {esMovil && (
-                              <>
-                                <span className="font-semibold text-sm sm:text-base mb-1 text-foreground">
-                                  {PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre}
-                                </span>
-                                <span className="text-xs text-muted-foreground mt-1">
-                                  {grupo.nombre}
-                                </span>
-                              </>
-                            )}
-                            {!esMovil && seccionKey !== "distribucion-demografica" && (
-                              <span className="text-xs text-muted-foreground mt-1">
-                                {PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || ""}
-                              </span>
-                            )}
+                            {/* Siempre muestra la pregunta completa como título principal */}
+                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground">
+                              {PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre}
+                            </span>
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  {seccionKey !== "distribucion-demografica" && grupoSeleccionado && (
-                    <div className="mt-2 p-3 bg-muted/30 rounded-md border border-border/50">
-                      {/* En PC: Muestra la pregunta completa como texto gris */}
-                      {!esMovil && (
-                        <p className="text-xs sm:text-sm text-foreground/80">
-                          {PREGUNTAS_LIKERT[seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.campo as keyof typeof PREGUNTAS_LIKERT] || 
-                           "Pregunta de escala Likert"}
-                        </p>
-                      )}
-                      {/* En móvil: Muestra el nombre corto como texto gris (ya que la pregunta completa está arriba como título) */}
-                      {esMovil && (
-                        <p className="text-xs sm:text-sm text-foreground/80">
-                          {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "Variable seleccionada"}
-                        </p>
-                      )}
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex gap-2 sm:gap-3 flex-wrap">

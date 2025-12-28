@@ -425,7 +425,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
       const ancho = window.innerWidth
       const alto = window.innerHeight
       setEsMovil(ancho < 768)
-      setEsHorizontal(ancho < 768 && ancho > alto) // Móvil en orientación horizontal
+      setEsHorizontal(ancho < 768 && ancho > alto)
     }
     verificarResponsividad()
     window.addEventListener("resize", verificarResponsividad)
@@ -722,7 +722,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
       const ancho = window.innerWidth
       const alto = window.innerHeight
       setEsMovil(ancho < 768)
-      setEsHorizontal(ancho < 768 && ancho > alto) // Móvil en orientación horizontal
+      setEsHorizontal(ancho < 768 && ancho > alto)
     }
     verificarResponsividad()
     window.addEventListener("resize", verificarResponsividad)
@@ -912,10 +912,12 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
             <TabsTrigger
               key={seccionKey}
               value={seccionKey}
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap flex-shrink-0"
             >
               {esHorizontal 
                 ? seccion.titulo.split(" ")[0] + (seccion.titulo.split(" ")[1] ? "..." : "")
+                : esMovil && seccion.titulo.length > 20
+                ? seccion.titulo.substring(0, 20) + "..."
                 : seccion.titulo
               }
             </TabsTrigger>
@@ -933,29 +935,21 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 <div className="space-y-2 mb-4">
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
-                    <SelectTrigger className="bg-white border-border text-left w-full min-h-[3.5rem] max-h-40 overflow-y-auto py-2">
+                    <SelectTrigger className="bg-white border-border text-left h-auto min-h-[3rem] py-3">
                       <SelectValue>
                         <div className="w-full pr-4">
-                          <span className="font-medium text-foreground text-sm sm:text-base whitespace-normal break-words leading-relaxed block">
+                          <span className="font-medium text-foreground line-clamp-2 md:line-clamp-3 text-sm sm:text-base">
                             {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos] && 
                              obtenerPreguntaCompleta(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos])}
                           </span>
                         </div>
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent 
-                      className="bg-white max-h-96 overflow-y-auto w-[calc(100vw-2rem)] sm:w-full"
-                      position="popper"
-                      sideOffset={5}
-                    >
+                    <SelectContent className="bg-white max-h-[70vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
-                        <SelectItem 
-                          key={key} 
-                          value={key} 
-                          className="py-3 px-4 min-h-[4rem] hover:bg-muted/50 transition-colors"
-                        >
+                        <SelectItem key={key} value={key} className="py-3 px-4 h-auto min-h-[3.5rem]">
                           <div className="flex flex-col w-full">
-                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground whitespace-normal break-words leading-relaxed">
+                            <span className="font-medium text-foreground line-clamp-2 md:line-clamp-3 text-sm sm:text-base">
                               {obtenerPreguntaCompleta(grupo)}
                             </span>
                           </div>

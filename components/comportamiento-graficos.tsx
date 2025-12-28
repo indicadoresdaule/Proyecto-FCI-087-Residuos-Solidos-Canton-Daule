@@ -305,12 +305,6 @@ const calcularAnchoEjeY = (datos: any[], esMovil: boolean) => {
   return Math.max(50, maxDigitos * 8 + 20)
 }
 
-// Función para acortar texto en el selector (solo para display)
-const acortarTextoSelector = (texto: string, limite: number = 50): string => {
-  if (texto.length <= limite) return texto
-  return texto.substring(0, limite) + "..."
-}
-
 // Mapeo de nombres de campos a preguntas legibles COMPLETAS
 const PREGUNTAS_LIKERT: Record<string, string> = {
   // Determinantes Socioculturales
@@ -424,20 +418,18 @@ const generarTablaLikertPorSeccion = (datos: any[], seccionSeleccionada: string)
 function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string }) {
   const [tipoGrafico, setTipoGrafico] = useState<"barras" | "torta" | "lineal">("barras")
   const [esMovil, setEsMovil] = useState(false)
-  const [esTablet, setEsTablet] = useState(false)
+  const [esHorizontal, setEsHorizontal] = useState(false)
 
   useEffect(() => {
-    const verificarDispositivo = () => {
+    const verificarResponsividad = () => {
       const ancho = window.innerWidth
-      // Móvil: < 768px
-      // Tablet: 768px - 1024px  
-      // Desktop: > 1024px
+      const alto = window.innerHeight
       setEsMovil(ancho < 768)
-      setEsTablet(ancho >= 768 && ancho <= 1024)
+      setEsHorizontal(ancho < 768 && ancho > alto) // Móvil en orientación horizontal
     }
-    verificarDispositivo()
-    window.addEventListener("resize", verificarDispositivo)
-    return () => window.removeEventListener("resize", verificarDispositivo)
+    verificarResponsividad()
+    window.addEventListener("resize", verificarResponsividad)
+    return () => window.removeEventListener("resize", verificarResponsividad)
   }, [])
 
   const datosSeccion = datos.filter((item) => item.seccion === seccion)
@@ -467,14 +459,10 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
 
   const anchoEjeY = calcularAnchoEjeY(datosGraficoTorta, esMovil)
   const margenBarras = esMovil
-    ? { top: 20, right: 5, left: 10, bottom: 80 }
-    : esTablet
-    ? { top: 25, right: 15, left: 40, bottom: 90 }
+    ? { top: 20, right: 5, left: 10, bottom: esHorizontal ? 120 : 80 }
     : { top: 30, right: 30, left: anchoEjeY, bottom: 100 }
   const margenLineal = esMovil
-    ? { top: 20, right: 5, left: 15, bottom: 80 }
-    : esTablet
-    ? { top: 25, right: 15, left: 60, bottom: 90 }
+    ? { top: 20, right: 5, left: 15, bottom: esHorizontal ? 120 : 80 }
     : { top: 30, right: 30, left: anchoEjeY + 80, bottom: 100 }
 
   return (
@@ -521,29 +509,29 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
 
         <TabsContent value="graficos" className="w-full overflow-hidden">
           {tipoGrafico === "barras" && (
-            <div className="w-full" style={{ height: esMovil ? "450px" : esTablet ? "500px" : "550px" }}>
+            <div className="w-full" style={{ height: esHorizontal ? "400px" : esMovil ? "450px" : "550px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <BarChart data={datosGrafico} margin={margenBarras}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
                     dataKey="name"
-                    angle={esMovil ? -45 : -35}
+                    angle={esHorizontal ? -60 : -45}
                     textAnchor="end"
-                    height={esMovil ? 100 : esTablet ? 110 : 120}
-                    fontSize={esMovil ? 9 : esTablet ? 10 : 12}
+                    height={esHorizontal ? 140 : esMovil ? 100 : 120}
+                    fontSize={esHorizontal ? 8 : esMovil ? 9 : 12}
                     tick={{ fill: "#4b5563" }}
                     interval={0}
                   />
-                  <YAxis fontSize={esMovil ? 10 : esTablet ? 11 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : esTablet ? 45 : 60} />
+                  <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : 60} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: "6px",
-                      fontSize: esMovil ? "11px" : esTablet ? "12px" : "14px",
+                      fontSize: esMovil ? "11px" : "14px",
                     }}
                   />
-                  <Legend wrapperStyle={{ fontSize: esMovil ? "10px" : esTablet ? "11px" : "12px" }} iconSize={esMovil ? 10 : esTablet ? 12 : 14} />
+                  <Legend wrapperStyle={{ fontSize: esMovil ? "10px" : "12px" }} iconSize={esMovil ? 10 : 14} />
                   {respuestasKeys.map((key, index) => (
                     <Bar
                       key={key}
@@ -561,7 +549,7 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
           )}
 
           {tipoGrafico === "torta" && (
-            <div className="w-full" style={{ height: esMovil ? "550px" : esTablet ? "580px" : "600px" }}>
+            <div className="w-full" style={{ height: esHorizontal ? "500px" : esMovil ? "550px" : "600px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <PieChart>
                   <Pie
@@ -571,19 +559,19 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                     labelLine={false}
                     label={(entry: any) => {
                       const porcentaje = entry.porcentaje ?? 0
+                      if (esHorizontal && porcentaje < 8) return ""
                       if (esMovil && porcentaje < 5) return ""
-                      if (esTablet && porcentaje < 3) return ""
-                      if (!esMovil && !esTablet && porcentaje < 2) return ""
+                      if (!esMovil && porcentaje < 2) return ""
                       return `${porcentaje.toFixed(1)}%`
                     }}
-                    outerRadius={esMovil ? 70 : esTablet ? 100 : 160}
-                    innerRadius={esMovil ? 35 : esTablet ? 50 : 80}
+                    outerRadius={esHorizontal ? 90 : esMovil ? 70 : 160}
+                    innerRadius={esHorizontal ? 45 : esMovil ? 35 : 80}
                     fill="#8884d8"
                     dataKey="value"
                     paddingAngle={2}
                     activeIndex={undefined}
                     activeShape={{
-                      outerRadius: esMovil ? 75 : esTablet ? 105 : 170,
+                      outerRadius: esHorizontal ? 95 : esMovil ? 75 : 170,
                       stroke: "#fff",
                       strokeWidth: 3,
                     }}
@@ -603,16 +591,16 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: "6px",
-                      fontSize: esMovil ? "11px" : esTablet ? "12px" : "14px",
+                      fontSize: esMovil ? "11px" : "14px",
                     }}
                   />
                   <Legend
                     verticalAlign="bottom"
-                    height={esMovil ? 180 : esTablet ? 160 : 150}
+                    height={esHorizontal ? 150 : esMovil ? 180 : 150}
                     wrapperStyle={{
-                      paddingTop: esMovil ? "10px" : esTablet ? "15px" : "20px",
-                      fontSize: esMovil ? "8px" : esTablet ? "10px" : "11px",
-                      maxHeight: esMovil ? "180px" : esTablet ? "160px" : "150px",
+                      paddingTop: esHorizontal ? "15px" : esMovil ? "10px" : "20px",
+                      fontSize: esHorizontal ? "9px" : esMovil ? "8px" : "11px",
+                      maxHeight: esHorizontal ? "150px" : esMovil ? "180px" : "150px",
                       overflowY: "auto",
                     }}
                     formatter={(value, entry: any) => {
@@ -626,41 +614,41 @@ function GraficosPorSeccion({ datos, seccion }: { datos: any[]; seccion: string 
           )}
 
           {tipoGrafico === "lineal" && (
-            <div className="w-full" style={{ height: esMovil ? "450px" : esTablet ? "500px" : "550px" }}>
+            <div className="w-full" style={{ height: esHorizontal ? "400px" : esMovil ? "450px" : "550px" }}>
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={datosGrafico} margin={margenLineal}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                   <XAxis
                     dataKey="name"
-                    angle={esMovil ? -45 : -35}
+                    angle={esHorizontal ? -60 : -45}
                     textAnchor="end"
-                    height={esMovil ? 100 : esTablet ? 110 : 120}
-                    fontSize={esMovil ? 9 : esTablet ? 10 : 12}
+                    height={esHorizontal ? 140 : esMovil ? 100 : 120}
+                    fontSize={esHorizontal ? 8 : esMovil ? 9 : 12}
                     tick={{ fill: "#4b5563" }}
                     interval={0}
                   />
-                  <YAxis fontSize={esMovil ? 10 : esTablet ? 11 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : esTablet ? 45 : 60} />
+                  <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={esMovil ? 35 : 60} />
                   <Tooltip
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",
                       borderRadius: "6px",
-                      fontSize: esMovil ? "11px" : esTablet ? "12px" : "14px",
+                      fontSize: esMovil ? "11px" : "14px",
                     }}
                   />
-                  <Legend wrapperStyle={{ fontSize: esMovil ? "10px" : esTablet ? "11px" : "12px" }} iconSize={esMovil ? 10 : esTablet ? 12 : 14} />
+                  <Legend wrapperStyle={{ fontSize: esMovil ? "10px" : "12px" }} iconSize={esMovil ? 10 : 14} />
                   {respuestasKeys.map((key, index) => (
                     <Line
                       key={key}
                       type="monotone"
                       dataKey={`respuestas.${key}`}
                       stroke={COLORS[index % COLORS.length].border}
-                      strokeWidth={esMovil ? 2 : esTablet ? 2.5 : 3}
+                      strokeWidth={esMovil ? 2 : 3}
                       dot={{
                         fill: COLORS[index % COLORS.length].bg,
                         stroke: "#fff",
                         strokeWidth: 2,
-                        r: esMovil ? 4 : esTablet ? 5 : 6,
+                        r: esMovil ? 4 : 6,
                       }}
                       name={key}
                     />
@@ -727,24 +715,19 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
   const [seccionSeleccionada, setSeccionSeleccionada] = useState<string>("distribucion-demografica")
   const [grupoSeleccionado, setGrupoSeleccionado] = useState<string>("grupos-edad")
   const [esMovil, setEsMovil] = useState(false)
-  const [esTablet, setEsTablet] = useState(false)
+  const [esHorizontal, setEsHorizontal] = useState(false)
 
   useEffect(() => {
-    const verificarDispositivo = () => {
+    const verificarResponsividad = () => {
       const ancho = window.innerWidth
-      // Móvil: < 768px
-      // Tablet: 768px - 1024px  
-      // Desktop: > 1024px
+      const alto = window.innerHeight
       setEsMovil(ancho < 768)
-      setEsTablet(ancho >= 768 && ancho <= 1024)
+      setEsHorizontal(ancho < 768 && ancho > alto) // Móvil en orientación horizontal
     }
-    verificarDispositivo()
-    window.addEventListener("resize", verificarDispositivo)
-    return () => window.removeEventListener("resize", verificarDispositivo)
+    verificarResponsividad()
+    window.addEventListener("resize", verificarResponsividad)
+    return () => window.removeEventListener("resize", verificarResponsividad)
   }, [])
-
-  // Determinar si es dispositivo móvil (incluye tablet en modo horizontal)
-  const esDispositivoMovil = esMovil || esTablet
 
   const procesarDatos = () => {
     const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
@@ -896,17 +879,21 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
   const datosGrafico = procesarDatos()
   const tablasSeccion = generarTablaPorSeccion()
   const tablasLikert = generarTablaLikertPorSeccion(datos, seccionSeleccionada)
-  const anchoEjeY = calcularAnchoEjeY(datosGrafico, esDispositivoMovil)
+  const anchoEjeY = calcularAnchoEjeY(datosGrafico, esMovil)
   const margenBarras = esMovil
-    ? { top: 20, right: 5, left: 10, bottom: 80 }
-    : esTablet
-    ? { top: 25, right: 15, left: 40, bottom: 90 }
+    ? { top: 20, right: 5, left: 10, bottom: esHorizontal ? 120 : 80 }
     : { top: 30, right: 30, left: anchoEjeY, bottom: 100 }
   const margenLineal = esMovil
-    ? { top: 20, right: 5, left: 15, bottom: 80 }
-    : esTablet
-    ? { top: 25, right: 15, left: 60, bottom: 90 }
+    ? { top: 20, right: 5, left: 15, bottom: esHorizontal ? 120 : 80 }
     : { top: 30, right: 30, left: anchoEjeY + 80, bottom: 100 }
+
+  // Función para obtener la pregunta completa de un grupo
+  const obtenerPreguntaCompleta = (grupo: any) => {
+    if (seccionSeleccionada === "distribucion-demografica") {
+      return grupo.nombre
+    }
+    return PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre
+  }
 
   return (
     <div className="space-y-8">
@@ -920,49 +907,19 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
         }}
         className="w-full"
       >
-        <TabsList className="w-full flex flex-wrap justify-start h-auto gap-3 bg-muted/50 p-3 rounded-lg">
-          <TabsTrigger
-            value="distribucion-demografica"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Distribución Demográfica
-          </TabsTrigger>
-          <TabsTrigger
-            value="determinantes-socioculturales"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Determinantes Socioculturales
-          </TabsTrigger>
-          <TabsTrigger
-            value="determinantes-afectivos"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Determinantes Afectivos
-          </TabsTrigger>
-          <TabsTrigger
-            value="determinantes-cognitivos"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Determinantes Cognitivos
-          </TabsTrigger>
-          <TabsTrigger
-            value="sustentabilidad-ambiental"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Sustentabilidad Ambiental
-          </TabsTrigger>
-          <TabsTrigger
-            value="sustentabilidad-economica"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Sustentabilidad Económica
-          </TabsTrigger>
-          <TabsTrigger
-            value="desarrollo-comunitario"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Desarrollo Comunitario
-          </TabsTrigger>
+        <TabsList className="w-full flex flex-wrap justify-start h-auto gap-3 bg-muted/50 p-3 rounded-lg overflow-x-auto">
+          {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
+            <TabsTrigger
+              key={seccionKey}
+              value={seccionKey}
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+            >
+              {esHorizontal 
+                ? seccion.titulo.split(" ")[0] + (seccion.titulo.split(" ")[1] ? "..." : "")
+                : seccion.titulo
+              }
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
@@ -978,11 +935,11 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
                     <SelectTrigger className="bg-white border-border text-left">
                       <SelectValue>
-                        <div className="truncate pr-4">
-                          {esDispositivoMovil 
-                            ? acortarTextoSelector(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "", 40)
-                            : acortarTextoSelector(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "", 60)
-                          }
+                        <div className="pr-4 overflow-hidden">
+                          <span className="font-medium text-foreground whitespace-normal break-words">
+                            {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos] && 
+                             obtenerPreguntaCompleta(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos])}
+                          </span>
                         </div>
                       </SelectValue>
                     </SelectTrigger>
@@ -990,9 +947,8 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
                         <SelectItem key={key} value={key} className="py-3 px-4">
                           <div className="flex flex-col">
-                            {/* Siempre muestra la pregunta completa como título principal */}
-                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground">
-                              {PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre}
+                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground whitespace-normal break-words">
+                              {obtenerPreguntaCompleta(grupo)}
                             </span>
                           </div>
                         </SelectItem>
@@ -1029,28 +985,28 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 </div>
               </div>
 
-              <div className="w-full" style={{ height: esDispositivoMovil ? "500px" : "500px" }}>
+              <div className="w-full" style={{ height: esHorizontal ? "450px" : esMovil ? "500px" : "500px" }}>
                 {tipoGrafico === "barras" && (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={datosGrafico} margin={margenBarras}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                       <XAxis
                         dataKey="name"
-                        angle={esDispositivoMovil ? -45 : -35}
+                        angle={esHorizontal ? -60 : -45}
                         textAnchor="end"
-                        height={esMovil ? 100 : esTablet ? 110 : 120}
-                        fontSize={esMovil ? 9 : esTablet ? 10 : 12}
+                        height={esHorizontal ? 140 : esMovil ? 100 : 120}
+                        fontSize={esHorizontal ? 8 : esMovil ? 9 : 12}
                         tick={{ fill: "#4b5563" }}
                         interval={0}
                       />
-                      <YAxis fontSize={esMovil ? 10 : esTablet ? 11 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
+                      <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
                       <Tooltip
                         formatter={(value) => `${value} respuestas`}
                         contentStyle={{
                           backgroundColor: "#fff",
                           border: "1px solid #e5e7eb",
                           borderRadius: "6px",
-                          fontSize: esMovil ? "11px" : esTablet ? "12px" : "14px",
+                          fontSize: esMovil ? "11px" : "14px",
                         }}
                       />
                       <Bar
@@ -1064,7 +1020,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               y={y - 8}
                               fill="#1f2937"
                               textAnchor="middle"
-                              fontSize={esMovil ? 9 : esTablet ? 10 : 12}
+                              fontSize={esHorizontal ? 8 : esMovil ? 9 : 12}
                               fontWeight="bold"
                             >
                               {`${porcentaje.toFixed(1)}%`}
@@ -1087,7 +1043,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 )}
 
                 {tipoGrafico === "torta" && (
-                  <div style={{ height: esMovil ? "550px" : esTablet ? "580px" : "600px" }}>
+                  <div style={{ height: esHorizontal ? "500px" : esMovil ? "550px" : "600px" }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
                         <Pie
@@ -1097,19 +1053,19 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                           labelLine={false}
                           label={(entry: any) => {
                             const porcentaje = entry.porcentaje ?? 0
+                            if (esHorizontal && porcentaje < 8) return ""
                             if (esMovil && porcentaje < 5) return ""
-                            if (esTablet && porcentaje < 3) return ""
-                            if (!esMovil && !esTablet && porcentaje < 2) return ""
+                            if (!esMovil && porcentaje < 2) return ""
                             return `${porcentaje.toFixed(1)}%`
                           }}
-                          outerRadius={esMovil ? 70 : esTablet ? 100 : 160}
-                          innerRadius={esMovil ? 35 : esTablet ? 50 : 80}
+                          outerRadius={esHorizontal ? 90 : esMovil ? 70 : 160}
+                          innerRadius={esHorizontal ? 45 : esMovil ? 35 : 80}
                           fill="#8884d8"
                           dataKey="value"
                           paddingAngle={2}
                           activeIndex={undefined}
                           activeShape={{
-                            outerRadius: esMovil ? 75 : esTablet ? 105 : 170,
+                            outerRadius: esHorizontal ? 95 : esMovil ? 75 : 170,
                             stroke: "#fff",
                             strokeWidth: 3,
                           }}
@@ -1129,16 +1085,16 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             backgroundColor: "#fff",
                             border: "1px solid #e5e7eb",
                             borderRadius: "6px",
-                            fontSize: esMovil ? "11px" : esTablet ? "12px" : "14px",
+                            fontSize: esMovil ? "11px" : "14px",
                           }}
                         />
                         <Legend
                           verticalAlign="bottom"
-                          height={esMovil ? 180 : esTablet ? 160 : 150}
+                          height={esHorizontal ? 150 : esMovil ? 180 : 150}
                           wrapperStyle={{
-                            paddingTop: esMovil ? "10px" : esTablet ? "15px" : "20px",
-                            fontSize: esMovil ? "8px" : esTablet ? "10px" : "11px",
-                            maxHeight: esMovil ? "180px" : esTablet ? "160px" : "150px",
+                            paddingTop: esHorizontal ? "15px" : esMovil ? "10px" : "20px",
+                            fontSize: esHorizontal ? "9px" : esMovil ? "8px" : "11px",
+                            maxHeight: esHorizontal ? "150px" : esMovil ? "180px" : "150px",
                             overflowY: "auto",
                           }}
                           formatter={(value, entry: any) => {
@@ -1157,21 +1113,21 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                       <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
                       <XAxis
                         dataKey="name"
-                        angle={esDispositivoMovil ? -45 : -35}
+                        angle={esHorizontal ? -60 : -45}
                         textAnchor="end"
-                        height={esMovil ? 100 : esTablet ? 110 : 120}
-                        fontSize={esMovil ? 9 : esTablet ? 10 : 12}
+                        height={esHorizontal ? 140 : esMovil ? 100 : 120}
+                        fontSize={esHorizontal ? 8 : esMovil ? 9 : 12}
                         tick={{ fill: "#4b5563" }}
                         interval={0}
                       />
-                      <YAxis fontSize={esMovil ? 10 : esTablet ? 11 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
+                      <YAxis fontSize={esMovil ? 10 : 12} tick={{ fill: "#4b5563" }} width={anchoEjeY} />
                       <Tooltip
                         formatter={(value) => `${value} respuestas`}
                         contentStyle={{
                           backgroundColor: "#fff",
                           border: "1px solid #e5e7eb",
                           borderRadius: "6px",
-                          fontSize: esMovil ? "11px" : esTablet ? "12px" : "14px",
+                          fontSize: esMovil ? "11px" : "14px",
                         }}
                       />
                       <Line
@@ -1186,16 +1142,16 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                               <circle
                                 cx={cx}
                                 cy={cy}
-                                r={esMovil ? 4 : esTablet ? 5 : 6}
+                                r={esHorizontal ? 3 : esMovil ? 4 : 6}
                                 fill={pointColor.bg}
                                 stroke="white"
                                 strokeWidth={2}
                               />
                               <text
                                 x={cx}
-                                y={cy - (esMovil ? 18 : esTablet ? 22 : 28)}
+                                y={cy - (esHorizontal ? 15 : esMovil ? 18 : 28)}
                                 textAnchor="middle"
-                                fontSize={esMovil ? 9 : esTablet ? 10 : 11}
+                                fontSize={esHorizontal ? 8 : esMovil ? 9 : 11}
                                 fontWeight="600"
                                 fill="#1f2937"
                               >
@@ -1204,7 +1160,7 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                             </g>
                           )
                         }}
-                        strokeWidth={esMovil ? 2 : esTablet ? 2.5 : 3}
+                        strokeWidth={esHorizontal ? 2 : esMovil ? 2 : 3}
                       />
                     </LineChart>
                   </ResponsiveContainer>

@@ -21,7 +21,6 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { ChevronDown } from "lucide-react"
 
 interface GraficosProps {
   datos: any[]
@@ -887,63 +886,6 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
     return PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre
   }
 
-  // Función para mostrar texto corto en el selector cuando está cerrado
-  const obtenerTextoSelector = () => {
-    const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
-    const grupo = seccion?.grupos[grupoSeleccionado as keyof typeof seccion.grupos]
-    
-    if (!grupo) return "Seleccionar variable"
-    
-    const preguntaCompleta = obtenerPreguntaCompleta(grupo)
-    
-    if (!esMovil) {
-      // En PC, mostrar texto completo pero limitado a 2 líneas
-      return preguntaCompleta
-    }
-    
-    // En móvil, mostrar versión más corta cuando está cerrado
-    if (seccionSeleccionada === "distribucion-demografica") {
-      return grupo.nombre
-    }
-    
-    // Para preguntas Likert, mostrar una versión más corta
-    const preguntaCorta = preguntaCompleta
-      .replace("¿Conoce usted qué son", "Desechos sólidos")
-      .replace("¿Cree usted que existe", "Comportamiento adecuado")
-      .replace("¿Se debe separar", "Separar desechos")
-      .replace("¿Es importante la", "Clasificación")
-      .replace("¿Cree que el comportamiento", "Comportamiento comunitario")
-      .replace("¿Dedica tiempo para", "Reducir/Reutilizar/Reciclar")
-      .replace("¿Los desechos sólidos son", "Problema comunitario")
-      .replace("¿Le preocupa el", "Preocupación por exceso")
-      .replace("¿Considera que los", "Consecuencias climáticas")
-      .replace("¿Le afecta emocionalmente", "Noticias de desastres")
-      .replace("¿Siente frustración", "Frustración ambiental")
-      .replace("¿Considera importante", "Planeta futuro")
-      .replace("¿Es consciente del", "Impacto ambiental")
-      .replace("¿Investiga frecuentemente", "Investigación ambiental")
-      .replace("¿Conoce las consecuencias", "Consecuencias acumulación")
-      .replace("¿Conoce los beneficios", "Beneficios reutilización")
-      .replace("¿La falta de información", "Falta información")
-      .replace("¿Los desechos orgánicos", "Funcionalidad orgánicos")
-      .replace("¿La acumulación de", "Salud y acumulación")
-      .replace("¿La reducción, reciclaje", "Cuidado ambiental")
-      .replace("¿Cree que la transformación", "Transformación productos")
-      .replace("¿Necesita más información", "Educación ambiental")
-      .replace("¿En su hogar practica", "Ingreso por reciclaje")
-      .replace("¿Los desechos sólidos", "Reutilización productos")
-      .replace("¿Cree que el manejo", "Desarrollo económico")
-      .replace("¿Los emprendimientos", "Economía y emprendimientos")
-      .replace("¿El manejo adecuado", "Oportunidades emprendimiento")
-      .replace("¿Es posible reducir", "Eventos concientización")
-      .replace("¿Participaría en talleres", "Talleres buenas prácticas")
-      .replace("¿El manejo adecuado", "Impacto ambiental")
-      .replace("¿Está dispuesto a", "Participar emprendimientos")
-      .replace("¿Participaría a una", "Feria emprendimientos")
-    
-    return preguntaCorta.length > 60 ? preguntaCorta.substring(0, 57) + "..." : preguntaCorta
-  }
-
   return (
     <div className="space-y-8">
       <Tabs
@@ -956,19 +898,49 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
         }}
         className="w-full"
       >
-        <TabsList className="w-full flex flex-wrap justify-start h-auto gap-3 bg-muted/50 p-3 rounded-lg overflow-x-auto">
-          {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
-            <TabsTrigger
-              key={seccionKey}
-              value={seccionKey}
-              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap min-w-fit"
-            >
-              {esMovil 
-                ? seccion.titulo.split(" ")[0] + (seccion.titulo.split(" ")[1] ? "..." : "")
-                : seccion.titulo
-              }
-            </TabsTrigger>
-          ))}
+        <TabsList className="w-full flex flex-wrap justify-start h-auto gap-3 bg-muted/50 p-3 rounded-lg">
+          <TabsTrigger
+            value="distribucion-demografica"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+          >
+            Distribución Demográfica
+          </TabsTrigger>
+          <TabsTrigger
+            value="determinantes-socioculturales"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+          >
+            Determinantes Socioculturales
+          </TabsTrigger>
+          <TabsTrigger
+            value="determinantes-afectivos"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+          >
+            Determinantes Afectivos
+          </TabsTrigger>
+          <TabsTrigger
+            value="determinantes-cognitivos"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+          >
+            Determinantes Cognitivos
+          </TabsTrigger>
+          <TabsTrigger
+            value="sustentabilidad-ambiental"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+          >
+            Sustentabilidad Ambiental
+          </TabsTrigger>
+          <TabsTrigger
+            value="sustentabilidad-economica"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+          >
+            Sustentabilidad Económica
+          </TabsTrigger>
+          <TabsTrigger
+            value="desarrollo-comunitario"
+            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+          >
+            Desarrollo Comunitario
+          </TabsTrigger>
         </TabsList>
 
         {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
@@ -982,54 +954,28 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 <div className="space-y-2 mb-4">
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
-                    <SelectTrigger className="bg-white border-border text-left w-full min-h-[56px] sm:min-h-[44px]">
-                      <div className="flex items-center justify-between w-full">
-                        <div className="flex-1 overflow-hidden">
-                          <div className="font-medium text-foreground text-sm sm:text-base leading-tight line-clamp-2">
-                            {obtenerTextoSelector()}
-                          </div>
+                    <SelectTrigger className="bg-white border-border text-left">
+                      <SelectValue>
+                        <div className="pr-4 overflow-hidden">
+                          <span className="font-medium text-foreground whitespace-normal break-words text-sm sm:text-base">
+                            {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos] && 
+                             obtenerPreguntaCompleta(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos])}
+                          </span>
                         </div>
-                        <ChevronDown className="h-4 w-4 opacity-50 ml-2 flex-shrink-0" />
-                      </div>
+                      </SelectValue>
                     </SelectTrigger>
-                    <SelectContent 
-                      className="bg-white max-h-[70vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full"
-                      position={esMovil ? "popper" : "item-aligned"}
-                      side={esMovil ? "bottom" : "bottom"}
-                      align={esMovil ? "center" : "start"}
-                    >
+                    <SelectContent className="bg-white max-h-96 overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
-                        <SelectItem 
-                          key={key} 
-                          value={key} 
-                          className="py-3 px-4 hover:bg-muted transition-colors"
-                        >
+                        <SelectItem key={key} value={key} className="py-3 px-4">
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground whitespace-normal break-words leading-tight">
+                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground whitespace-normal break-words">
                               {obtenerPreguntaCompleta(grupo)}
                             </span>
-                            {seccionKey !== "distribucion-demografica" && (
-                              <span className="text-xs text-muted-foreground mt-1">
-                                {grupo.nombre}
-                              </span>
-                            )}
                           </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
                   </Select>
-                  
-                  {/* Indicador visual para mostrar que la pregunta está cortada */}
-                  {esMovil && (
-                    <div className="mt-1 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1">
-                        <span>Pregunta seleccionada: </span>
-                        <span className="font-medium">
-                          {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos]?.nombre || "Variable"}
-                        </span>
-                      </span>
-                    </div>
-                  )}
                 </div>
 
                 <div className="flex gap-2 sm:gap-3 flex-wrap">

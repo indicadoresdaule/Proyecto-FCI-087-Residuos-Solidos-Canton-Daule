@@ -21,6 +21,7 @@ import { Card } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { ChevronDown } from "lucide-react"
 
 interface GraficosProps {
   datos: any[]
@@ -341,7 +342,7 @@ const PREGUNTAS_LIKERT: Record<string, string> = {
     "¿La falta de información es un obstáculo para la correcta gestión de los residuos sólidos domiciliario?",
   // Sustentabilidad Ambiental
   desechos_organicos_funcionalidad: "¿Los desechos orgánicos generados en el hogar pueden tener otra funcionalidad?",
-  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de la población?",
+  acumulacion_desechos_afecta_salud: "¿La acumulación de desechos afectan a la salud de de la población?",
   reduccion_reciclaje_reutilizacion_cuida_ambiente:
     "¿La reducción, reciclaje y la reutilización de los desechos sólidos puede cuidar al medio ambiente y a la vida silvestre?",
   transformacion_desechos_nuevos_productos:
@@ -886,6 +887,34 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
     return PREGUNTAS_LIKERT[grupo.campo as keyof typeof PREGUNTAS_LIKERT] || grupo.nombre
   }
 
+  // Función para mostrar texto en el selector
+  const obtenerTextoSelector = () => {
+    const seccion = SECCIONES[seccionSeleccionada as keyof typeof SECCIONES]
+    const grupo = seccion?.grupos[grupoSeleccionado as keyof typeof seccion.grupos]
+    
+    if (!grupo) return "Seleccionar variable"
+    
+    const preguntaCompleta = obtenerPreguntaCompleta(grupo)
+    
+    // Para móvil, mostrar desde el signo de pregunta hasta donde alcance
+    if (esMovil && seccionSeleccionada !== "distribucion-demografica") {
+      // Encontrar el primer signo de pregunta
+      const indicePregunta = preguntaCompleta.indexOf("¿")
+      if (indicePregunta !== -1) {
+        const textoDesdePregunta = preguntaCompleta.substring(indicePregunta)
+        
+        // Si el texto es muy largo, cortar y agregar puntos suspensivos
+        if (textoDesdePregunta.length > 40) {
+          return textoDesdePregunta.substring(0, 37) + "..."
+        }
+        return textoDesdePregunta
+      }
+    }
+    
+    // Para PC o secciones sin signo de pregunta, mostrar texto completo
+    return preguntaCompleta
+  }
+
   return (
     <div className="space-y-8">
       <Tabs
@@ -899,48 +928,15 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
         className="w-full"
       >
         <TabsList className="w-full flex flex-wrap justify-start h-auto gap-3 bg-muted/50 p-3 rounded-lg">
-          <TabsTrigger
-            value="distribucion-demografica"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Distribución Demográfica
-          </TabsTrigger>
-          <TabsTrigger
-            value="determinantes-socioculturales"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Determinantes Socioculturales
-          </TabsTrigger>
-          <TabsTrigger
-            value="determinantes-afectivos"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Determinantes Afectivos
-          </TabsTrigger>
-          <TabsTrigger
-            value="determinantes-cognitivos"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Determinantes Cognitivos
-          </TabsTrigger>
-          <TabsTrigger
-            value="sustentabilidad-ambiental"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Sustentabilidad Ambiental
-          </TabsTrigger>
-          <TabsTrigger
-            value="sustentabilidad-economica"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Sustentabilidad Económica
-          </TabsTrigger>
-          <TabsTrigger
-            value="desarrollo-comunitario"
-            className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
-          >
-            Desarrollo Comunitario
-          </TabsTrigger>
+          {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
+            <TabsTrigger
+              key={seccionKey}
+              value={seccionKey}
+              className="data-[state=active]:bg-primary data-[state=active]:text-white px-4 py-2.5 text-sm whitespace-nowrap"
+            >
+              {seccion.titulo}
+            </TabsTrigger>
+          ))}
         </TabsList>
 
         {Object.entries(SECCIONES).map(([seccionKey, seccion]) => (
@@ -954,21 +950,27 @@ function ComportamientoGraficos({ datos }: GraficosProps) {
                 <div className="space-y-2 mb-4">
                   <label className="text-sm font-medium text-foreground">Seleccionar Variable</label>
                   <Select value={grupoSeleccionado} onValueChange={setGrupoSeleccionado}>
-                    <SelectTrigger className="bg-white border-border text-left">
+                    <SelectTrigger className="bg-white border-border text-left w-full">
                       <SelectValue>
-                        <div className="pr-4 overflow-hidden">
-                          <span className="font-medium text-foreground whitespace-normal break-words text-sm sm:text-base">
-                            {seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos] && 
-                             obtenerPreguntaCompleta(seccion.grupos[grupoSeleccionado as keyof typeof seccion.grupos])}
+                        <div className="pr-4 overflow-hidden text-left">
+                          <span className="font-medium text-foreground text-sm sm:text-base whitespace-normal break-words line-clamp-2">
+                            {obtenerTextoSelector()}
                           </span>
                         </div>
                       </SelectValue>
                     </SelectTrigger>
-                    <SelectContent className="bg-white max-h-96 overflow-y-auto w-[calc(100vw-2rem)] sm:w-full">
+                    <SelectContent 
+                      className="bg-white max-h-[70vh] overflow-y-auto w-[calc(100vw-2rem)] sm:w-full"
+                      position="popper"
+                    >
                       {Object.entries(seccion.grupos).map(([key, grupo]) => (
-                        <SelectItem key={key} value={key} className="py-3 px-4">
+                        <SelectItem 
+                          key={key} 
+                          value={key} 
+                          className="py-3 px-4 hover:bg-muted transition-colors"
+                        >
                           <div className="flex flex-col">
-                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground whitespace-normal break-words">
+                            <span className="font-medium text-sm sm:text-base mb-1 text-foreground whitespace-normal break-words leading-tight">
                               {obtenerPreguntaCompleta(grupo)}
                             </span>
                           </div>

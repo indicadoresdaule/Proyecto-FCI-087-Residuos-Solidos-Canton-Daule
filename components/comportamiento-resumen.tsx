@@ -52,7 +52,7 @@ export function ComportamientoResumen({ datos }: ResumenProps) {
           <div className="space-y-2">
             <p className="text-sm font-medium text-white/90">Tipo de Hogar Predominante</p>
             <p className="text-2xl font-bold tracking-tight capitalize">{tipoHogarPredominante[0]}</p>
-            <p className="text-3xl font-bold tracking-tight">{tipoHogarPorcentaje.toFixed(1)}%</p>
+            <p className="text-3xl font-bold tracking-tight">{tipoHogarPorcentaje.toFixed(2)}%</p>
           </div>
         </div>
       </Card>
@@ -63,7 +63,7 @@ export function ComportamientoResumen({ datos }: ResumenProps) {
           <div className="space-y-2">
             <p className="text-sm font-medium text-white/90">Educación Predominante</p>
             <p className="text-2xl font-bold tracking-tight capitalize">{educacionPredominante[0]}</p>
-            <p className="text-3xl font-bold tracking-tight">{educacionPorcentaje.toFixed(1)}%</p>
+            <p className="text-3xl font-bold tracking-tight">{educacionPorcentaje.toFixed(2)}%</p>
           </div>
         </div>
       </Card>
@@ -74,7 +74,7 @@ export function ComportamientoResumen({ datos }: ResumenProps) {
           <div className="space-y-2">
             <p className="text-sm font-medium text-white/90">Situación Laboral Predominante</p>
             <p className="text-2xl font-bold tracking-tight capitalize">{situacionPredominante[0]}</p>
-            <p className="text-3xl font-bold tracking-tight">{situacionPorcentaje.toFixed(1)}%</p>
+            <p className="text-3xl font-bold tracking-tight">{situacionPorcentaje.toFixed(2)}%</p>
           </div>
         </div>
       </Card>
